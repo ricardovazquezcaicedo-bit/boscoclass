@@ -1,0 +1,633 @@
+<!doctype html>
+<html lang="es" data-theme="dark">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="theme-color" content="#091513">
+	<title>BoscoIA | Asistente Inteligente</title>
+	<style>
+		:root[data-theme="dark"] {
+			color-scheme: dark;
+			--bg-main: #091513;
+			--bg-sidebar: #0d211e;
+			--bg-card: rgba(17, 37, 33, 0.78);
+			--bg-user-msg: rgba(31, 78, 62, 0.55);
+			--bg-input: rgba(5, 16, 15, 0.85);
+			--border-color: rgba(134, 185, 168, 0.2);
+			--border-active: #81d8b6;
+			--text-primary: #e8f4f1;
+			--text-secondary: #9ab2ad;
+			--accent: #9de2c4;
+			--accent-hover: #b8f0d7;
+			--accent-text: #071714;
+			--red: #ff977b;
+		}
+
+		:root[data-theme="light"] {
+			color-scheme: light;
+			--bg-main: #f4f8f6;
+			--bg-sidebar: #ebf3f0;
+			--bg-card: #ffffff;
+			--bg-user-msg: #e2f1ec;
+			--bg-input: #ffffff;
+			--border-color: #cbdcd5;
+			--border-active: #103f3b;
+			--text-primary: #122420;
+			--text-secondary: #587069;
+			--accent: #103f3b;
+			--accent-hover: #18544e;
+			--accent-text: #ffffff;
+			--red: #c95743;
+		}
+
+		* { box-sizing: border-box; margin: 0; padding: 0; }
+		body {
+			min-height: 100vh;
+			font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+			background-color: var(--bg-main);
+			color: var(--text-primary);
+			transition: background-color 200ms ease, color 200ms ease;
+		}
+
+		button, input, textarea { font: inherit; }
+
+		.shell {
+			display: grid;
+			grid-template-columns: 280px minmax(0, 1fr);
+			min-height: 100vh;
+		}
+
+		/* Sidebar */
+		.sidebar {
+			background: var(--bg-sidebar);
+			border-right: 1px solid var(--border-color);
+			display: flex;
+			flex-direction: column;
+			padding: 18px 14px;
+			gap: 16px;
+		}
+
+		.brand {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			padding: 4px 6px;
+			font-weight: 700;
+			letter-spacing: 0.5px;
+			color: var(--text-primary);
+		}
+
+		.brand-icon {
+			width: 32px;
+			height: 32px;
+			background: var(--accent);
+			color: var(--accent-text);
+			border-radius: 8px;
+			display: grid;
+			place-items: center;
+			font-weight: 800;
+		}
+
+		.btn-primary {
+			width: 100%;
+			padding: 10px 14px;
+			background: var(--accent);
+			color: var(--accent-text);
+			border: none;
+			border-radius: 6px;
+			font-weight: 600;
+			font-size: 13px;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			justify-content: center;
+			transition: background 150ms ease;
+		}
+		.btn-primary:hover { background: var(--accent-hover); }
+
+		.chat-list-container {
+			flex: 1;
+			overflow-y: auto;
+			display: flex;
+			flex-direction: column;
+			gap: 4px;
+		}
+
+		.chat-item {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			padding: 9px 10px;
+			border-radius: 6px;
+			color: var(--text-secondary);
+			cursor: pointer;
+			background: transparent;
+			border: none;
+			width: 100%;
+			text-align: left;
+			font-size: 13px;
+			transition: background 150ms ease, color 150ms ease;
+		}
+
+		.chat-item:hover, .chat-item.active {
+			background: var(--bg-card);
+			color: var(--text-primary);
+		}
+
+		.chat-title {
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			flex: 1;
+		}
+
+		.delete-btn {
+			background: transparent;
+			border: none;
+			color: var(--text-secondary);
+			cursor: pointer;
+			opacity: 0;
+			padding: 2px 4px;
+			border-radius: 4px;
+			transition: opacity 150ms ease, color 150ms ease;
+		}
+
+		.chat-item:hover .delete-btn { opacity: 1; }
+		.delete-btn:hover { color: var(--red); }
+
+		.sidebar-footer {
+			border-top: 1px solid var(--border-color);
+			padding-top: 12px;
+			display: flex;
+			justify-content: space-between;
+		}
+
+		.icon-btn {
+			background: transparent;
+			border: 1px solid var(--border-color);
+			color: var(--text-primary);
+			width: 36px;
+			height: 36px;
+			border-radius: 6px;
+			cursor: pointer;
+			display: grid;
+			place-items: center;
+			transition: background 150ms ease;
+		}
+		.icon-btn:hover { background: var(--bg-card); }
+
+		/* Main Chat Area */
+		.chat-area {
+			display: grid;
+			grid-template-rows: auto 1fr auto;
+			height: 100vh;
+		}
+
+		.chat-header {
+			padding: 14px 24px;
+			border-bottom: 1px solid var(--border-color);
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+		}
+
+		.chat-header h2 { font-size: 16px; font-weight: 600; }
+
+		.messages {
+			padding: 24px;
+			overflow-y: auto;
+			display: flex;
+			flex-direction: column;
+			gap: 20px;
+			max-width: 900px;
+			width: 100%;
+			margin: 0 auto;
+		}
+
+		.welcome-container {
+			margin: auto;
+			text-align: center;
+			max-width: 500px;
+		}
+
+		.welcome-container h1 {
+			font-size: 32px;
+			margin-bottom: 8px;
+			background: linear-gradient(135deg, var(--text-primary), var(--accent));
+			-webkit-background-clip: text;
+			-webkit-text-fill-color: transparent;
+		}
+
+		.welcome-container p { color: var(--text-secondary); font-size: 14px; margin-bottom: 24px; }
+
+		.suggestions {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 10px;
+		}
+
+		.sug-card {
+			padding: 12px 14px;
+			background: var(--bg-card);
+			border: 1px solid var(--border-color);
+			border-radius: 8px;
+			color: var(--text-primary);
+			font-size: 12px;
+			cursor: pointer;
+			text-align: left;
+			transition: border-color 150ms ease;
+		}
+		.sug-card:hover { border-color: var(--border-active); }
+
+		.msg-row {
+			display: flex;
+			gap: 12px;
+			max-width: 85%;
+		}
+
+		.msg-row.user {
+			align-self: flex-end;
+			flex-direction: row-reverse;
+		}
+
+		.avatar {
+			width: 32px;
+			height: 32px;
+			border-radius: 50%;
+			background: var(--bg-card);
+			border: 1px solid var(--border-color);
+			display: grid;
+			place-items: center;
+			font-size: 14px;
+			flex-shrink: 0;
+		}
+
+		.msg-bubble {
+			background: var(--bg-card);
+			border: 1px solid var(--border-color);
+			padding: 12px 16px;
+			border-radius: 12px;
+			font-size: 14px;
+			line-height: 1.6;
+			white-space: pre-wrap;
+		}
+
+		.msg-row.user .msg-bubble {
+			background: var(--bg-user-msg);
+			border-color: var(--border-color);
+		}
+
+		/* Composer */
+		.composer-container {
+			padding: 16px 24px;
+			max-width: 900px;
+			width: 100%;
+			margin: 0 auto;
+		}
+
+		.composer-box {
+			background: var(--bg-input);
+			border: 1px solid var(--border-color);
+			border-radius: 10px;
+			padding: 10px;
+			display: flex;
+			flex-direction: column;
+			gap: 8px;
+		}
+
+		.composer-box:focus-within { border-color: var(--border-active); }
+
+		.composer-box textarea {
+			background: transparent;
+			border: none;
+			color: var(--text-primary);
+			outline: none;
+			resize: none;
+			height: 48px;
+			font-size: 14px;
+		}
+
+		.composer-actions {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+		}
+
+		/* Modal Config */
+		.modal-overlay {
+			position: fixed;
+			inset: 0;
+			background: rgba(0,0,0,0.6);
+			display: grid;
+			place-items: center;
+			z-index: 100;
+		}
+		.modal-overlay[hidden] { display: none; }
+
+		.modal {
+			background: var(--bg-sidebar);
+			border: 1px solid var(--border-color);
+			padding: 24px;
+			border-radius: 12px;
+			width: min(100% - 32px, 420px);
+			display: flex;
+			flex-direction: column;
+			gap: 16px;
+		}
+
+		.modal h3 { font-size: 18px; }
+
+		.form-group {
+			display: flex;
+			flex-direction: column;
+			gap: 6px;
+		}
+
+		.form-group label { font-size: 12px; color: var(--text-secondary); }
+		.form-group input {
+			padding: 8px 12px;
+			background: var(--bg-input);
+			border: 1px solid var(--border-color);
+			color: var(--text-primary);
+			border-radius: 6px;
+			outline: none;
+		}
+
+		@media (max-width: 768px) {
+			.shell { grid-template-columns: 1fr; }
+			.sidebar { display: none; }
+		}
+	</style>
+</head>
+<body>
+	<div class="shell">
+		<!-- Sidebar -->
+		<aside class="sidebar">
+			<div class="brand">
+				<div class="brand-icon">B</div>
+				<span>BoscoIA</span>
+			</div>
+			<button class="btn-primary" id="btn-new-chat">+ Nuevo Chat</button>
+			
+			<div class="chat-list-container" id="chat-list"></div>
+
+			<div class="sidebar-footer">
+				<button class="icon-btn" id="btn-theme-toggle" title="Cambiar Tema">🌙</button>
+				<button class="icon-btn" id="btn-settings" title="Configuración">⚙️</button>
+			</div>
+		</aside>
+
+		<!-- Chat Area -->
+		<main class="chat-area">
+			<header class="chat-header">
+				<h2>Asistente de Aprendizaje</h2>
+				<span id="user-badge" style="font-size: 12px; color: var(--text-secondary);">Usuario</span>
+			</header>
+
+			<div class="messages" id="messages">
+				<div class="welcome-container" id="welcome">
+					<h1>¿En qué te ayudo hoy?</h1>
+					<p>Explora conceptos, resuelve dudas o analiza tus apuntes.</p>
+					<div class="suggestions">
+						<div class="sug-card" onclick="sendSuggestion(this)">Explica la fotosíntesis con una analogía sencilla</div>
+						<div class="sug-card" onclick="sendSuggestion(this)">¿Cómo funciona el ciclo del agua?</div>
+						<div class="sug-card" onclick="sendSuggestion(this)">Escribe un poema corto sobre la ciencia</div>
+						<div class="sug-card" onclick="sendSuggestion(this)">Ayúdame a organizar un plan de estudio</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="composer-container">
+				<form class="composer-box" id="chat-form">
+					<textarea id="prompt" placeholder="Escribe un mensaje a BoscoIA..."></textarea>
+					<div class="composer-actions">
+						<span style="font-size: 11px; color: var(--text-secondary);">Presiona Enter para enviar</span>
+						<button class="btn-primary" type="submit" style="width: auto; padding: 6px 16px;">Enviar</button>
+					</div>
+				</form>
+			</div>
+		</main>
+	</div>
+
+	<!-- Modal Configuración -->
+	<div class="modal-overlay" id="settings-modal" hidden>
+		<div class="modal">
+			<h3>Configuración</h3>
+			<div class="form-group">
+				<label for="username-input">Tu Nombre</label>
+				<input type="text" id="username-input" placeholder="Ej. Alex">
+			</div>
+			<div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 10px;">
+				<button class="icon-btn" id="btn-clear-all" title="Borrar todos los chats" style="width: auto; padding: 0 12px; color: var(--red);">Borrar Chats</button>
+				<button class="btn-primary" id="btn-close-settings" style="width: auto;">Guardar</button>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		// Estado Global
+		let chats = JSON.parse(localStorage.getItem('bosco_chats') || '[]');
+		let activeChatId = null;
+		let config = JSON.parse(localStorage.getItem('bosco_config') || '{"theme":"dark","username":"Estudiante"}');
+
+		// Elementos DOM
+		const chatListEl = document.getElementById('chat-list');
+		const messagesEl = document.getElementById('messages');
+		const welcomeEl = document.getElementById('welcome');
+		const chatForm = document.getElementById('chat-form');
+		const promptInput = document.getElementById('prompt');
+		const themeBtn = document.getElementById('btn-theme-toggle');
+		const settingsModal = document.getElementById('settings-modal');
+
+		// Inicialización
+		function init() {
+			applyTheme(config.theme);
+			document.getElementById('user-badge').textContent = config.username;
+			document.getElementById('username-input').value = config.username;
+			renderChatList();
+			
+			if (chats.length > 0) {
+				loadChat(chats[0].id);
+			} else {
+				newChat();
+			}
+		}
+
+		// Temas
+		function applyTheme(theme) {
+			document.documentElement.setAttribute('data-theme', theme);
+			themeBtn.textContent = theme === 'dark' ? '☀️' : '🌙';
+			config.theme = theme;
+			saveConfig();
+		}
+
+		themeBtn.addEventListener('click', () => {
+			applyTheme(config.theme === 'dark' ? 'light' : 'dark');
+		});
+
+		// Chats
+		function saveChats() { localStorage.setItem('bosco_chats', JSON.stringify(chats)); }
+		function saveConfig() { localStorage.setItem('bosco_config', JSON.stringify(config)); }
+
+		function renderChatList() {
+			chatListEl.innerHTML = '';
+			chats.forEach(chat => {
+				const item = document.createElement('div');
+				item.className = `chat-item ${chat.id === activeChatId ? 'active' : ''}`;
+				item.innerHTML = `
+					<span class="chat-title">${chat.title}</span>
+					<button class="delete-btn" onclick="deleteChat(event, '${chat.id}')">🗑️</button>
+				`;
+				item.onclick = (e) => {
+					if(!e.target.classList.contains('delete-btn')) loadChat(chat.id);
+				};
+				chatListEl.appendChild(item);
+			});
+		}
+
+		function newChat() {
+			const newId = Date.now().toString();
+			const chat = { id: newId, title: 'Nueva conversación', messages: [] };
+			chats.unshift(chat);
+			saveChats();
+			renderChatList();
+			loadChat(newId);
+		}
+
+		function loadChat(id) {
+			activeChatId = id;
+			renderChatList();
+			const chat = chats.find(c => c.id === id);
+			messagesEl.innerHTML = '';
+
+			if (!chat || chat.messages.length === 0) {
+				messagesEl.appendChild(welcomeEl);
+				welcomeEl.hidden = false;
+				return;
+			}
+			welcomeEl.hidden = true;
+			chat.messages.forEach(m => appendMessage(m.role, m.content));
+			messagesEl.scrollTop = messagesEl.scrollHeight;
+		}
+
+		function deleteChat(e, id) {
+			e.stopPropagation();
+			if (!confirm("¿Eliminar este chat?")) return;
+			chats = chats.filter(c => c.id !== id);
+			saveChats();
+			if (activeChatId === id) {
+				if (chats.length > 0) loadChat(chats[0].id);
+				else newChat();
+			} else {
+				renderChatList();
+			}
+		}
+
+		function appendMessage(role, content) {
+			welcomeEl.hidden = true;
+			const row = document.createElement('div');
+			row.className = `msg-row ${role}`;
+			row.innerHTML = `
+				<div class="avatar">${role === 'assistant' ? '✳' : '👤'}</div>
+				<div class="msg-bubble">${content}</div>
+			`;
+			messagesEl.appendChild(row);
+			messagesEl.scrollTop = messagesEl.scrollHeight;
+			return row;
+		}
+
+		// Enviar Mensajes
+		chatForm.addEventListener('submit', async (e) => {
+			e.preventDefault();
+			const text = promptInput.value.trim();
+			if (!text) return;
+
+			promptInput.value = '';
+			const currentChat = chats.find(c => c.id === activeChatId);
+
+			if (currentChat.messages.length === 0) {
+				currentChat.title = text.slice(0, 25) + '...';
+				renderChatList();
+			}
+
+			currentChat.messages.push({ role: 'user', content: text });
+			appendMessage('user', text);
+			saveChats();
+
+			const loadingRow = appendMessage('assistant', 'Pensando...');
+
+			try {
+				const response = await fetch('/api/chat', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({
+						messages: currentChat.messages
+					})
+				});
+
+				const reader = response.body.getReader();
+				const decoder = new TextDecoder();
+				let assistantText = '';
+				loadingRow.querySelector('.msg-bubble').textContent = '';
+
+				while (true) {
+					const { done, value } = await reader.read();
+					if (done) break;
+					const chunk = decoder.decode(value);
+					const lines = chunk.split('\n');
+					for (const line of lines) {
+						if (line.startsWith('data:')) {
+							try {
+								const data = line.slice(5).trim();
+								if (data && data !== '{}') {
+									assistantText += JSON.parse(data);
+									loadingRow.querySelector('.msg-bubble').textContent = assistantText;
+								}
+							} catch (err) {}
+						}
+					}
+				}
+
+				currentChat.messages.push({ role: 'assistant', content: assistantText });
+				saveChats();
+
+			} catch (err) {
+				loadingRow.querySelector('.msg-bubble').textContent = 'Error de conexión al procesar tu solicitud.';
+			}
+		});
+
+		promptInput.addEventListener('keydown', (e) => {
+			if (e.key === 'Enter' && !e.shiftKey) {
+				e.preventDefault();
+				chatForm.dispatchEvent(new Event('submit'));
+			}
+		});
+
+		function sendSuggestion(el) {
+			promptInput.value = el.textContent;
+			chatForm.dispatchEvent(new Event('submit'));
+		}
+
+		// Handlers de Configuración y Eventos
+		document.getElementById('btn-new-chat').onclick = newChat;
+		document.getElementById('btn-settings').onclick = () => settingsModal.hidden = false;
+		document.getElementById('btn-close-settings').onclick = () => {
+			config.username = document.getElementById('username-input').value.trim() || 'Estudiante';
+			document.getElementById('user-badge').textContent = config.username;
+			saveConfig();
+			settingsModal.hidden = true;
+		};
+		document.getElementById('btn-clear-all').onclick = () => {
+			if (confirm("¿Estás seguro de borrar todas las conversaciones?")) {
+				chats = [];
+				saveChats();
+				newChat();
+				settingsModal.hidden = true;
+			}
+		};
+
+		init();
+	</script>
+</body>
+</html>

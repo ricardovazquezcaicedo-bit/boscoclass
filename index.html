@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="es" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BoscoIA - Colegio San Juan Bosco</title>
+    <link rel="icon" type="image/png" href="/assets/aistudio/image_c159dc3e.png" />
+    <meta name="description" content="Asistente educativo inteligente y tutor académico del Colegio San Juan Bosco (Salesianos de Don Bosco - Tuluá)." />
+    <meta property="og:title" content="BoscoIA - Colegio San Juan Bosco" />
+    <meta property="og:description" content="Asistente educativo inteligente y tutor académico del Colegio San Juan Bosco (Salesianos de Don Bosco - Tuluá)." />
+    <meta property="og:image" content="/assets/aistudio/image_c159dc3e.png" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous" />
+    <script>
+      (function() {
+        try {
+          var saved = localStorage.getItem('bosco_config');
+          var theme = saved ? JSON.parse(saved).theme : 'dark';
+          if (theme === 'dark') {
+            document.documentElement.classList.add('dark');
+            document.documentElement.setAttribute('data-theme', 'dark');
+          } else {
+            document.documentElement.classList.remove('dark');
+            document.documentElement.setAttribute('data-theme', 'light');
+          }
+        } catch (e) {
+          document.documentElement.classList.add('dark');
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+

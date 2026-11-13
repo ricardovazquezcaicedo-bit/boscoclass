@@ -1,0 +1,1925 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>ClassPoint — Plataforma educativa</title>
+	<style>
+		:root {
+			--primary:#234d78;
+			--primary-dark:#173857;
+			--accent:#50c6b3;
+			--accent-soft:#d9f5ef;
+			--dark:#132c49;
+			--ink:#1d3557;
+			--muted:#586d82;
+			--surface:#f4f8fb;
+			--surface-strong:#edf4f9;
+			--white:#ffffff;
+			--success:#2d7a56;
+			--shadow:0 12px 32px rgba(19, 44, 73, 0.10);
+		}
+		* { box-sizing:border-box; }
+		html { scroll-behavior:smooth; }
+		body {
+			margin:0;
+			font-family: Arial, Helvetica, sans-serif;
+			background:linear-gradient(180deg, #eef6fb 0%, #f9fafb 100%);
+			color:var(--ink);
+		}
+		a { color:inherit; text-decoration:none; }
+		button, input, select { font:inherit; }
+		input, select { display:block; width:100%; color:var(--ink); background:#fff; }
+		.container { max-width:1180px; margin:0 auto; padding:0 16px; }
+		.site-header {
+			background:linear-gradient(135deg, #112d4d 0%, #1b466d 55%, #295f8f 100%);
+			color:#fff;
+			padding:6px 0 8px;
+			border-bottom:4px solid rgba(80,198,179,0.9);
+			position:relative;
+			overflow:hidden;
+		}
+		.site-header::before {
+			content:"";
+			position:absolute;
+			inset:0;
+			pointer-events:none;
+			z-index:0;
+			background:radial-gradient(circle at 12% 15%, rgba(242,140,104,0.28), transparent 18%), radial-gradient(circle at 85% 20%, rgba(255,255,255,0.12), transparent 18%);
+		}
+		.site-header.app-header { padding:10px 0 12px; }
+		.site-header.app-header .login-shell { min-height:0; height:0; padding:0; overflow:hidden; }
+		.nav, .login-shell { position:relative; z-index:1; }
+		.nav { display:flex; justify-content:space-between; align-items:center; gap:18px; }
+		.brand-area { display:flex; align-items:center; gap:22px; min-width:0; flex:1; }
+		.logo { display:inline-flex; align-items:center; gap:12px; letter-spacing:1px; font-weight:700; font-size:2.1rem; }
+		.logo-mark {
+			display:grid; place-items:center;
+			width:46px; height:46px;
+			position:relative;
+			background:linear-gradient(145deg,#7be2cb,#35a994);
+			color:#12344d; border-radius:14px 14px 14px 5px;
+			box-shadow:0 9px 20px rgba(4,35,51,.25), inset 0 1px 0 rgba(255,255,255,.35);
+			font-family:"Trebuchet MS",sans-serif; font-weight:800;
+			letter-spacing:-.08em;
+		}
+		.logo-mark::after { content:""; position:absolute; width:8px; height:8px; right:7px; top:7px; border-radius:50%; background:#fff1b8; }
+		.logo-mark span { display:block; font-size:1.05rem; transform:none; }
+		.nav-links {
+			display:flex; gap:20px; align-items:center; font-size:.96rem; opacity:.9;
+		}
+		.nav-links a { opacity:.84; }
+		.top-app-nav { display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+		.top-app-nav button { width:auto; margin:0; padding:8px 11px; border-radius:8px; background:rgba(255,255,255,0.12); color:#fff; font-size:.84rem; }
+		.top-app-nav button:hover, .top-app-nav button.activo { background:var(--accent); color:#fff; }
+		.notification-button { position:relative; width:38px !important; height:36px; padding:7px !important; display:grid; place-items:center; }
+		.bell-icon { display:block; position:relative; width:14px; height:15px; border:2px solid currentColor; border-radius:9px 9px 4px 4px; }
+		.bell-icon::before { content:""; position:absolute; left:3px; bottom:-5px; width:5px; height:3px; border-radius:50%; background:currentColor; }
+		.bell-icon::after { content:""; position:absolute; left:-4px; bottom:-2px; width:18px; height:2px; border-radius:2px; background:currentColor; }
+		.notification-count { position:absolute; top:-5px; right:-5px; min-width:16px; height:16px; padding:0 3px; border-radius:999px; background:#ef8354; color:#fff; font-size:.65rem; line-height:16px; text-align:center; }
+		.top-app-nav .top-logout { background:transparent; border:1px solid rgba(255,255,255,.5); }
+		.top-welcome { color:rgba(255,255,255,.9); font-size:.82rem; font-weight:700; white-space:nowrap; padding:0 4px 0 8px; }
+		.avatar { width:34px; height:34px; border-radius:50%; object-fit:cover; border:2px solid rgba(255,255,255,.8); background:#d9f5ef; vertical-align:middle; }
+		.avatar-placeholder { display:inline-grid; place-items:center; color:#176b87; font-weight:800; }
+		.profile-avatar { width:88px; height:88px; border:3px solid var(--accent); }
+		.top-user-actions { display:flex; align-items:center; gap:8px; margin-left:auto; }
+		.top-user-actions .top-logout { background:#092d43; color:#fff; border:1px solid #061f30; box-shadow:0 5px 12px rgba(3,25,39,.28); }
+		.ai-assistant { position:fixed; right:20px; bottom:20px; z-index:30; width:min(360px,calc(100vw - 28px)); background:#fff; border:1px solid #cfe1e6; border-radius:16px; box-shadow:0 18px 42px rgba(18,52,77,.2); overflow:hidden; }
+		.ai-assistant-toggle { width:100%; margin:0; border-radius:0; text-align:left; }
+		.ai-assistant-body { padding:14px; }
+		.ai-assistant-messages { max-height:220px; overflow:auto; display:grid; gap:8px; margin-bottom:10px; }
+		.ai-message { padding:9px 11px; border-radius:10px; background:#eef7f7; color:var(--ink); font-size:.9rem; line-height:1.45; }
+		.ai-message.user { background:#e7eff8; text-align:right; }
+		.ai-assistant-form { display:flex; gap:8px; margin:0 !important; }
+		.ai-assistant-form input { min-width:0; }
+		.ai-assistant-form button { width:auto; margin:0; white-space:nowrap; }
+		.nav-button {
+			padding:12px 18px; border:none; border-radius:999px; background:var(--accent); color:#fff; font-weight:700; cursor:pointer; 
+		}
+		.hero {
+			position:relative; z-index:1; display:grid; grid-template-columns:1.2fr .95fr; align-items:center; gap:20px;
+			padding-top:4px; min-height:210px;
+		}
+		.hero-copy { max-width:640px; }
+		.eyebrow {
+			margin:0 0 18px; text-transform:uppercase; letter-spacing:2px; font-size:.8rem; color:#e8eef8; font-weight:700;
+		}
+		.hero-copy h1 {
+			margin:0; font-size:clamp(2.1rem, 3.5vw, 3.5rem); line-height:1.08; letter-spacing:-0.04em; color:#fff;
+		}
+		.hero-copy p { margin:18px 0 0; font-size:1.02rem; line-height:1.7; color:rgba(255,255,255,0.84); max-width:560px; }
+		.hero-actions { display:flex; flex-wrap:wrap; gap:14px; margin-top:26px; }
+		.hero-actions button { margin:0; }
+		.hero-actions .secondary { background:transparent; border:1px solid rgba(255,255,255,0.5); }
+		.hero-points {
+			list-style:none; padding:0; margin:26px 0 0; display:flex; flex-wrap:wrap; gap:18px;
+			color:#dfeaf6; font-weight:700;
+		}
+		.hero-points li { white-space:nowrap; }
+		.login-shell {
+			display:flex;
+			justify-content:center;
+			align-items:center;
+			min-height:210px;
+		}
+		.card {
+			background:rgba(255,255,255,0.98);
+			border:1px solid rgba(255,255,255,0.8);
+			border-radius:18px;
+			padding:14px 16px;
+			margin-bottom:10px;
+			box-shadow:var(--shadow);
+		}
+		.login-card {
+			width:min(100%, 430px); margin:0; padding:14px 18px 12px; border:1px solid rgba(16,42,67,0.08); background:linear-gradient(180deg,#fff,#f8fbff); box-shadow:0 20px 40px rgba(17,45,77,0.12);
+		}
+		.login-card h2 {
+			font-size:1.45rem;
+			margin-bottom:4px;
+			color:var(--dark);
+		}
+		.login-card form {
+			margin-top:4px;
+		}
+		.login-card label {
+			font-size:0.92rem;
+			margin-top:7px;
+			margin-bottom:4px;
+		}
+		.login-card input {
+			background:#fff;
+			border-radius:12px;
+			padding:8px 11px;
+			border:1px solid #ccddea;
+			box-shadow:inset 0 1px 2px rgba(18,44,73,0.04);
+		}
+		.login-card button {
+			border-radius:12px;
+			padding:8px 12px;
+			margin-top:9px;
+			font-size:1rem;
+		}
+		.login-card .secondary {
+			margin-top:8px;
+			padding:8px 11px;
+		}
+		main { max-width:1180px; margin:10px auto 26px; padding:0 14px; }
+		.feature-grid {
+			display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:16px; margin-top:18px;
+		}
+		.feature-card {
+			background:linear-gradient(180deg, #ffffff, #f5f9fd); border-radius:16px; padding:14px; box-shadow:0 10px 18px rgba(19,44,73,0.06);
+			border:1px solid #ebf0f5;
+		}
+		.feature-card h3 { margin:16px 0 8px; font-size:1.32rem; color:var(--dark); }
+		.feature-card p { margin:0; color:var(--muted); line-height:1.7; }
+		.feature-icon {
+			display:inline-grid; place-items:center; width:50px; height:50px; border-radius:14px; font-size:1.4rem;
+			background:linear-gradient(135deg, var(--accent-soft), #fff);
+		}
+		.story {
+			margin-top:30px; background:linear-gradient(180deg,#f9fbfd,#eef5fb); border-radius:20px; padding:20px 18px; border:1px solid #e7edf4;
+		}
+		.story-grid {
+			display:grid; grid-template-columns:1fr 1fr; gap:20px; align-items:start;
+		}
+		.story-card {
+			background:#fff; border-radius:18px; padding:24px; border:1px solid #edf1f5; box-shadow:0 10px 25px rgba(16,42,67,0.04);
+		}
+		.story-card h2, .story-card h3, .card h2, .card h3 { margin-top:0; color:var(--dark); }
+		.story-card p, .story-card li { color:var(--muted); line-height:1.7; }
+		.story-step { display:flex; gap:16px; margin-top:18px; }
+		.step-num {
+			display:grid; place-items:center; width:44px; height:44px; border-radius:50%; background:var(--dark); color:#fff; font-weight:700; flex-shrink:0;
+		}
+		.mission {
+			margin-top:22px; background:linear-gradient(145deg, #153353, #244f76); border-radius:18px; color:#fff; padding:18px 20px;
+		}
+		.mission strong { color:#c6fff1; }
+		.app-shell { margin-top:12px; }
+		.card h1,h2 { margin-top:0; }
+		h2 { color:var(--dark); } label { display:block; margin:10px 0 5px; font-weight:700; font-family:Arial,sans-serif; color:var(--dark); }
+		input, select, textarea, button { width:100%; padding:10px 12px; border:1px solid #c8d9e5; border-radius:10px; font-size:1rem; font-family:Arial,sans-serif; }
+		input:focus, select:focus { outline:3px solid rgba(242,140,104,0.22); border-color:var(--accent); }
+		button {
+			background:linear-gradient(135deg,var(--primary),#2f6fa7); color:white; border:0; cursor:pointer; margin-top:12px; font-weight:700;
+			padding:10px 14px; transition:transform .18s,box-shadow .18s,opacity .18s;
+		}
+		button:hover { transform:translateY(-1px); box-shadow:0 8px 18px rgba(28,78,128,0.22); }
+		.secondary { background:linear-gradient(135deg,#5d7d93,#7693a6); }
+		.error { color:#b91c1c; margin:12px 0 0; font-weight:700; } .success { color:var(--success); margin:12px 0 0; font-weight:700; }
+		.hidden { display:none !important; }
+		.monedas { color:#b45309; font-size:1.2rem; font-weight:700; }
+		.classcoin-icon {
+			display:inline-grid;
+			place-items:center;
+			position:relative;
+			width:42px;
+			height:42px;
+			margin-right:8px;
+			border:3px solid #d58a18;
+			border-radius:50%;
+			background:linear-gradient(145deg,#ffe08a,#f2aa29);
+			color:#8a4b08;
+			font-size:.72rem;
+			font-weight:800;
+			letter-spacing:.02em;
+			box-shadow:inset 0 2px 0 rgba(255,255,255,.65),0 4px 10px rgba(165,93,8,.2);
+			vertical-align:middle;
+		}
+		.classcoin-icon::after { content:"$"; position:absolute; right:-5px; bottom:-4px; display:grid; place-items:center; width:17px; height:17px; border-radius:50%; background:#2d7a56; color:#fff; border:2px solid #fff; font-size:.72rem; }
+		.tienda { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:14px; margin-top:20px; }
+		.producto { border:1px solid #cfe8e8; border-radius:12px; padding:16px; background:#f7fffd; }
+		.producto h3 { margin:0 0 8px; } .producto button { margin-top:10px; }
+		.producto button:disabled { background:#94a3b8; cursor:not-allowed; }
+		.materias { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:8px; margin:10px 0; }
+		.materias button { margin-top:0; } .detalle-materia { min-height:70px; }
+		.inicio-layout { display:grid; grid-template-columns:170px 1fr; gap:14px; }
+		.barra-materias { display:flex; flex-direction:column; gap:8px; }
+		.barra-materias button { margin:0; text-align:left; background:#dfeaf3; color:var(--dark); }
+		.barra-materias button:hover,.barra-materias .activo { background:var(--accent); color:white; }
+		.barra { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin-bottom:10px; }
+		.admin-barra { grid-template-columns:repeat(5,minmax(0,1fr)); gap:6px; }
+		.barra button { margin:0; background:#ddeaf4; color:var(--dark); padding:8px 6px; font-size:0.85rem; }
+		.barra .activo { background:var(--dark); color:white; }
+		.panel { display:none; } .panel.activo { display:block; }
+		.formulario-pequeno { max-width:520px; }
+		.admin-personas-grid {
+			display:grid;
+			grid-template-columns:repeat(2, minmax(0,1fr));
+			gap:16px;
+			align-items:start;
+		}
+		.quick-grid {
+			display:grid;
+			grid-template-columns:repeat(2, minmax(0,1fr));
+			gap:12px;
+			margin:16px 0 18px;
+		}
+		.list-simple {
+			display:grid;
+			gap:10px;
+			margin-top:14px;
+		}
+		.list-item {
+			background:#f7fafc;
+			border:1px solid #e7edf4;
+			border-radius:12px;
+			padding:12px 14px;
+		}
+		.list-item strong { display:block; color:var(--dark); }
+		.pill {
+			display:inline-block;
+			padding:6px 10px;
+			border-radius:999px;
+			font-size:.78rem;
+			font-weight:700;
+			background:#e7f5ec;
+			color:var(--success);
+		}
+		.pill.warn {
+			background:#fff1df;
+			color:#b45309;
+		}
+		.status-badge {
+			display:inline-block;
+			padding:4px 8px;
+			border-radius:999px;
+			font-size:.74rem;
+			font-weight:700;
+			margin-top:6px;
+			background:#edf4ff;
+			color:#1d4ed8;
+		}
+		.admin-personas-grid .formulario-pequeno {
+			max-width:none;
+			width:100%;
+		}
+		.resumen-admin {
+			display:grid;
+			grid-template-columns:repeat(3, minmax(0,1fr));
+			gap:12px;
+			margin-bottom:16px;
+		}
+		.metric-card {
+			background:linear-gradient(180deg,#ffffff,#f3f8fc);
+			border:1px solid #e3edf6;
+			border-radius:14px;
+			padding:14px 12px;
+			box-shadow:0 8px 16px rgba(19,44,73,0.04);
+		}
+		.metric-card span {
+			display:block;
+			font-size:0.8rem;
+			letter-spacing:0.08em;
+			text-transform:uppercase;
+			color:var(--muted);
+			margin-bottom:8px;
+		}
+		.metric-card strong {
+			font-size:2rem;
+			color:var(--dark);
+		}
+		.lista-sesiones, .lista-materias {
+			display:grid;
+			gap:10px;
+			margin-top:18px;
+		}
+		.item-lista {
+			background:#f7fafc;
+			border:1px solid #e7edf4;
+			border-radius:12px;
+			padding:12px 14px;
+		}
+		.item-lista strong { display:block; color:var(--dark); }
+		.item-lista small { color:var(--muted); }
+		.institucion-miembros { display:grid; gap:6px; margin-top:10px; padding-top:10px; border-top:1px solid #dce9ec; }
+		.institucion-miembro { display:flex; align-items:center; gap:8px; color:var(--ink); font-size:.9rem; }
+		.aula-selector {
+			display:flex;
+			flex-direction:column;
+			align-items:flex-start;
+			gap:5px;
+			margin:0;
+			text-align:left;
+			background:linear-gradient(145deg,#ffffff,#edf7f7);
+			color:var(--dark);
+			border:1px solid #d7e7ea;
+		}
+		.aula-selector:hover, .aula-selector.activo { background:var(--accent); color:#fff; }
+		.aula-selector small { color:var(--muted); }
+		.aula-selector:hover small, .aula-selector.activo small { color:#fff; }
+		table { width:100%; border-collapse:collapse; margin-top:16px; } th,td { text-align:left; padding:12px; border-bottom:1px solid #e2e8f0; }
+		th { background:#e2f0f7; color:var(--dark); } .nota { font-weight:700; color:var(--primary); }
+		/* Modern ClassPoint visual layer */
+		:root {
+			--primary:#176b87;
+			--primary-dark:#104b68;
+			--accent:#50c6b3;
+			--accent-soft:#d9f5ef;
+			--dark:#12344d;
+			--ink:#203b50;
+			--muted:#63788a;
+			--surface:#eef5f7;
+			--surface-strong:#e2eef1;
+			--shadow:0 16px 36px rgba(18,52,77,.11);
+		}
+		body {
+			font-family:"Trebuchet MS", "Segoe UI", sans-serif;
+			background:
+				radial-gradient(circle at 8% 8%, rgba(240,139,104,.13), transparent 22%),
+				radial-gradient(circle at 92% 72%, rgba(23,107,135,.12), transparent 25%),
+				#f4f8f8;
+		}
+		body::before {
+			content:"";
+			position:fixed;
+			inset:0;
+			pointer-events:none;
+			opacity:.28;
+			background-image:linear-gradient(rgba(23,107,135,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(23,107,135,.035) 1px, transparent 1px);
+			background-size:28px 28px;
+		}
+		.site-header {
+			background:linear-gradient(135deg,#103d5b 0%,#176b87 58%,#2a8b9a 100%);
+			border-bottom:3px solid var(--accent);
+			box-shadow:0 8px 24px rgba(16,61,91,.18);
+		}
+		.logo { letter-spacing:.02em; font-size:1.9rem; }
+		.logo-mark { background:var(--accent); box-shadow:0 8px 18px rgba(8,36,52,.24); }
+		.top-app-nav { padding:5px; border:1px solid rgba(255,255,255,.18); border-radius:13px; background:rgba(8,43,61,.24); backdrop-filter:blur(10px); }
+		.top-app-nav button { border-radius:9px; background:transparent; }
+		.top-app-nav button:hover, .top-app-nav button.activo { background:var(--accent); box-shadow:0 5px 14px rgba(240,139,104,.28); }
+		.card {
+			border:1px solid rgba(209,225,230,.9);
+			border-radius:16px;
+			box-shadow:var(--shadow);
+		}
+		.login-card { border-top:4px solid var(--accent); }
+		.card h1, .card h2, .card h3 { letter-spacing:-.02em; }
+		button { border-radius:9px; background:linear-gradient(135deg,var(--primary),#258ca0); box-shadow:0 5px 12px rgba(23,107,135,.16); }
+		button:hover { box-shadow:0 9px 20px rgba(23,107,135,.24); }
+		.secondary { background:linear-gradient(135deg,#6c8491,#829aa4); }
+		.panel { animation:panel-in .22s ease-out; }
+		@keyframes panel-in { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:translateY(0); } }
+		.metric-card { border-color:#d7e7ea; background:linear-gradient(145deg,#fff,#edf7f7); box-shadow:0 8px 18px rgba(18,52,77,.07); }
+		.metric-card strong { color:var(--primary-dark); }
+		.item-lista, .list-item { border-color:#dce9ec; background:rgba(249,252,252,.9); }
+		.status-badge { background:#e3f3f1; color:#14706f; }
+		th { background:#dceff0; }
+		.producto { border-color:#cfe8e8; background:linear-gradient(145deg,#f7fffd,#edf9f6); }
+		@media (max-width:900px) {
+			.hero { grid-template-columns:1fr; padding-top:36px; }
+			.nav-links { display:none; }
+			.brand-area { width:100%; justify-content:space-between; gap:10px; }
+			.top-app-nav { justify-content:flex-end; }
+			.feature-grid { grid-template-columns:1fr; }
+			.story-grid { grid-template-columns:1fr; }
+			.quick-grid { grid-template-columns:1fr; }
+		}
+		@media (max-width:600px) {
+			.container, main { padding-left:14px; padding-right:14px; }
+			.card { padding:20px 16px; }
+			.logo { font-size:1.6rem; }
+			.logo-mark { width:40px; height:40px; }
+			.brand-area { align-items:flex-start; flex-direction:column; }
+			.top-app-nav { width:100%; justify-content:flex-start; overflow-x:auto; flex-wrap:nowrap; padding-bottom:2px; }
+			.top-app-nav button { flex:0 0 auto; }
+			.hero-copy h1 { font-size:2.2rem; }
+			.hero-points { gap:10px 16px; }
+			.inicio-layout { grid-template-columns:1fr; gap:14px; }
+			.barra-materias { display:grid; grid-template-columns:repeat(2,1fr); }
+			th,td { padding:8px 4px; font-size:.9rem; }
+		}
+		/* Balanced application layout */
+		main { max-width:1240px; margin:24px auto 42px; }
+		.app-shell > section { padding:24px 28px 28px; }
+		.app-shell .panel > h2 { margin-bottom:18px; }
+		.app-shell .panel > p { max-width:760px; }
+		.app-shell form { margin-bottom:22px; }
+		.app-shell .formulario-pequeno { width:100%; max-width:640px; }
+		.quick-grid { gap:16px; margin:18px 0 24px; }
+		.metric-card { min-height:102px; display:flex; flex-direction:column; justify-content:center; }
+		.resumen-admin { grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; }
+		.admin-personas-grid { gap:22px; }
+		.list-simple, .lista-sesiones { gap:12px; }
+		.list-item, .item-lista { padding:14px 16px; }
+		table { overflow:hidden; border-radius:10px; }
+		@media (max-width:900px) {
+			.app-shell > section { padding:20px 18px 24px; }
+			.resumen-admin { grid-template-columns:repeat(2,minmax(0,1fr)); }
+		}
+		@media (max-width:600px) {
+			main { margin-top:14px; }
+			.app-shell > section { padding:18px 14px 22px; }
+			.resumen-admin { grid-template-columns:1fr 1fr; gap:10px; }
+			.metric-card { min-height:88px; padding:12px 10px; }
+		}
+		/* Auto-hide the application menu until the pointer reaches the top edge. */
+		.site-header.app-header {
+			position:fixed;
+			top:0;
+			left:0;
+			right:0;
+			z-index:20;
+			transform:translateY(calc(-100% + 16px));
+			transition:transform .24s ease;
+		}
+		.site-header.app-header:hover,
+		.site-header.app-header:focus-within { transform:translateY(0); }
+	
+		.modern-logo { display:inline-flex; align-items:center; gap:10px; text-decoration:none; color:#fff; font-weight:800; }
+		.modern-logo-mark { width:46px; height:46px; display:grid; place-items:center; flex:0 0 auto; }
+		.modern-logo-mark svg { width:46px; height:46px; display:block; overflow:visible; }
+		.modern-logo-mark svg > path:first-child { fill:var(--accent, #35a994); stroke:var(--accent, #35a994); stroke-width:1.5; }
+		.modern-logo-mark .logo-line { stroke:#12344d; stroke-width:3; stroke-linecap:round; fill:none; }
+		.modern-logo-mark .logo-dot { fill:#fff1b8; }
+		.modern-logo-text { font-size:1.9rem; letter-spacing:.02em; color:#fff; }
+		.modern-logo-text span { color:#7be2cb; }
+
+	</style>
+</head>
+<body>
+	<header class="site-header">
+		<nav class="nav container">
+			<div class="brand-area">
+				<a class="logo modern-logo" href="#" aria-label="ClassPoint">
+  <span class="modern-logo-mark" aria-hidden="true">
+    <svg viewBox="0 0 48 48" role="img">
+      <path d="M14 8h20a6 6 0 0 1 6 6v14a6 6 0 0 1-6 6H22l-7 6v-6h-1a6 6 0 0 1-6-6V14a6 6 0 0 1 6-6Z"/>
+      <path d="M16 17h16M16 24h11" class="logo-line"/>
+      <circle cx="33" cy="29" r="3.2" class="logo-dot"/>
+    </svg>
+  </span>
+  <span class="modern-logo-text">Class<span>Point</span></span>
+</a>
+				<div id="topAppNav" class="top-app-nav hidden">
+					<div id="topStudentNav" class="top-role-nav hidden"><button type="button" data-top-panel="inicioPanel">Inicio</button><button type="button" data-top-panel="materiasPanel">Materias</button><button type="button" data-top-panel="aulasPanel">Aulas</button><button type="button" data-top-panel="tareasPanel">Tareas</button><button type="button" data-top-panel="calendarioPanel">Calendario</button><button type="button" data-top-panel="evidenciasPanel">Evidencias</button><button type="button" data-top-panel="logrosPanel">Logros</button><button type="button" data-top-panel="monedasPanel">Mercado</button><button type="button" data-top-panel="rankingPanel">Ranking</button><button type="button" data-top-panel="chismografoPanel">El Chismógrafo</button><button type="button" data-top-panel="manualPanel">Manual de uso</button><button type="button" data-top-panel="perfilPanel">Perfil</button></div>
+					<div id="topTeacherNav" class="top-role-nav hidden"><button type="button" data-top-panel="profesorInicio">Inicio</button><button type="button" data-top-panel="profesorInicio">Aulas</button><button type="button" data-top-panel="profesorCalificaciones">Calificaciones</button><button type="button" data-top-panel="profesorTareas">Tareas</button><button type="button" data-top-panel="profesorEvidencias">Evidencias</button><button type="button" data-top-panel="profesorAsistencia">Asistencia</button><button type="button" data-top-panel="profesorMonedas">ClassCoins</button><button type="button" data-top-panel="profesorRanking">Ranking</button><button type="button" data-top-panel="profesorManual">Manual de uso</button><button type="button" data-top-panel="profesorPerfil">Perfil</button></div>
+					<div id="topAdminNav" class="top-role-nav hidden"><button type="button" data-top-panel="adminInicio">Inicio</button><button type="button" data-top-panel="adminClases">Aulas</button><button type="button" data-top-panel="adminPersonas">Personas</button><button type="button" data-top-panel="adminMercado">Mercado</button><button type="button" id="topInstituciones" class="hidden" data-top-panel="adminInstituciones">Instituciones</button><button type="button" data-top-panel="adminManual">Manual de uso</button><button type="button" data-top-panel="adminPerfil">Perfil</button></div>
+				</div>
+				<div id="topUserActions" class="top-user-actions hidden"><span id="topAvatar"></span><span id="topWelcome" class="top-welcome"></span><button type="button" class="notification-button" data-top-panel="notificacionesPanel" aria-label="Notificaciones"><span class="bell-icon"></span><span class="notification-count">0</span></button><button type="button" class="top-logout salir">Salir</button></div>
+			</div>
+		</nav>
+		<div class="login-shell container">
+			<section id="login" class="card login-card">
+				<h2>Iniciar sesión</h2>
+				<form id="loginForm">
+					<label for="usuario">Usuario</label><input id="usuario" required autocomplete="username">
+					<label for="contrasena">Contraseña</label><input id="contrasena" type="password" required autocomplete="current-password">
+					<button type="submit">Entrar</button><p id="loginError" class="error"></p>
+				</form>
+				<form id="institucionIngresoForm" class="hidden formulario-pequeno">
+					<h2>Completa tu institución</h2>
+					<p>Antes de entrar debes indicar la institución a la que perteneces.</p>
+					<label for="institucionIngreso">Institución</label><input id="institucionIngreso" required>
+					<button type="submit">Guardar y entrar</button><p id="institucionIngresoMensaje" class="error"></p>
+				</form>
+				<button type="button" id="mostrarRegistro" class="secondary">Crear inicio de sesión</button>
+				<form id="registroForm" class="hidden formulario-pequeno">
+					<h2>Crear cuenta</h2>
+					<label for="registroRol">Tipo de cuenta</label>
+					<select id="registroRol" required>
+						<option value="estudiante">Estudiante</option>
+						<option value="profesor">Profesor</option>
+						<option value="administrador">Administrador institucional</option>
+					</select>
+					<label for="registroInstitucion">Institución</label><input id="registroInstitucion" placeholder="Ej. Colegio Central" required>
+					<label for="registroCorreo">Correo electrónico</label><input id="registroCorreo" type="email" placeholder="ejemplo@correo.com" autocomplete="email">
+					<label for="registroUsuario">Usuario</label><input id="registroUsuario" required autocomplete="username">
+					<label for="registroNombre">Nombre completo</label><input id="registroNombre" required>
+					<label for="registroClave">Contraseña</label><input id="registroClave" type="password" minlength="4" required autocomplete="new-password">
+					<button type="submit">Crear cuenta</button><p id="registroMensaje" class="success"></p>
+				</form>
+			</section>
+		</div>
+	</header>
+
+	<main>
+        <div id="quickTools" class="quick-tools hidden">
+            <div class="quick-search">
+                <span aria-hidden="true">🔎</span>
+                <input id="globalSearch" type="search" placeholder="Buscar tareas, materias, aulas, estudiantes..." autocomplete="off">
+            </div>
+            <button type="button" id="quickSearchClear" class="secondary">Limpiar</button>
+        </div>
+
+		<div class="app-shell">
+			<section id="estudiante" class="card hidden">
+				<div id="inicioPanel" class="panel activo">
+					<h2>Perfil del estudiante</h2>
+					<p id="bienvenida"></p>
+					<div id="inicioAnunciosEstudiante" class="list-simple"></div>
+					<div class="quick-grid">
+						<div class="metric-card"><span>Asistencia</span><strong id="statAsistencia">0%</strong></div>
+						<div class="metric-card"><span>Logros</span><strong id="statLogros">0</strong></div>
+                        <div class="metric-card"><span>Promedio</span><strong id="statPromedio">—</strong></div>
+                        <div class="metric-card"><span>Tareas pendientes</span><strong id="statTareasPendientes">0</strong></div>
+					</div>
+					<div class="inicio-layout"><aside id="listaMaterias" class="barra-materias"></aside><div id="detalleMateria" class="detalle-materia"><p>Selecciona una materia para ver sus calificaciones.</p></div></div>
+				</div>
+				<div id="notificacionesPanel" class="panel"><h2>Notificaciones</h2><div id="listaNotificacionesEstudiante" class="list-simple"></div></div>
+				<div id="materiasPanel" class="panel">
+					<h2>Mis materias</h2>
+					<div class="inicio-layout"><aside id="listaMateriasPanel" class="barra-materias"></aside><div id="detalleMateriaPanel" class="detalle-materia"><p>Selecciona una materia para ver sus calificaciones.</p></div></div>
+				</div>
+				<div id="tareasPanel" class="panel"><h2>Tareas y entregas</h2><div id="listaTareasEstudiante" class="list-simple"></div></div>
+                <div id="calendarioPanel" class="panel"><h2>📅 Calendario de tareas</h2><p>Consulta las tareas asignadas y la fecha máxima de entrega.</p><div id="calendarioTareasEstudiante" class="list-simple"></div></div>
+				<div id="evidenciasPanel" class="panel">
+					<h2>Subir evidencia de trabajo</h2>
+					<p>Adjunta un archivo o comparte un enlace para demostrar tu trabajo.</p>
+					<form id="evidenciaForm" class="formulario-pequeno">
+						<label for="evidenciaTarea">Tarea</label><select id="evidenciaTarea" required></select>
+						<label for="evidenciaArchivo">Archivo</label><input id="evidenciaArchivo" type="file" accept="image/*,.pdf,.doc,.docx,.ppt,.pptx" required>
+						<label for="evidenciaEnlace">Enlace opcional</label><input id="evidenciaEnlace" type="url" placeholder="https://..."><button type="submit">Subir evidencia</button><p id="evidenciaMensaje" class="success"></p>
+					</form>
+					<h2>Mis evidencias</h2><div id="listaEvidenciasEstudiante" class="list-simple"></div>
+				</div>
+				<div id="aulasPanel" class="panel">
+					<h2>Mis aulas</h2>
+					<form id="unirseAulaForm" class="formulario-pequeno">
+						<label for="codigoAula">Código del aula</label><input id="codigoAula" placeholder="Ej. CP-AB12-34" maxlength="10" required>
+						<button type="submit">Ingresar al aula</button><p id="unirseAulaMensaje" class="success"></p>
+					</form>
+					<div id="listaAulasEstudiante" class="list-simple"></div>
+					<div id="calificacionesAula" class="detalle-materia"><p>Selecciona un aula para consultar sus calificaciones.</p></div>
+				</div>
+				<div id="logrosPanel" class="panel">
+    <h2>🏆 Mis logros e insignias</h2>
+    <p class="logros-intro">Completa diferentes retos para desbloquear insignias. En cada una puedes ver exactamente qué debes hacer.</p>
+    <h3>Insignias</h3>
+    <div id="listaInsigniasEstudiante" class="insignias-grid"></div>
+    <h3 class="subtitulo-logros">Logros obtenidos</h3>
+    <div id="resumenPeriodosEstudiante" class="periodos-grid"></div>
+    <div id="listaLogrosEstudiante" class="list-simple"></div>
+</div>
+				<div id="monedasPanel" class="panel"><p class="monedas"><span class="classcoin-icon" aria-label="Moneda CC">CC</span><span id="saldo">0</span> ClassCoins</p><h2>Tienda de recompensas</h2><div class="tienda"><div id="mercadoEstudiante" class="tienda"></div></div><p id="tiendaMensaje" class="success"></p></div>
+				<div id="rankingPanel" class="panel"><h2>Rankings del salón</h2><p>Consulta las clasificaciones de estudiantes de tu institución.</p><h3>Ranking de ClassCoins</h3><table><thead><tr><th>Posición</th><th>Estudiante</th><th>ClassCoins</th></tr></thead><tbody id="rankingCoins"></tbody></table><h3>Ranking de calificaciones</h3><table><thead><tr><th>Posición</th><th>Estudiante</th><th>Promedio de calificaciones</th></tr></thead><tbody id="ranking"></tbody></table></div>
+                <div id="chismografoPanel" class="panel">
+                    <h2>🗣️ El Chismógrafo</h2>
+                    <p>Comparte anécdotas, rumores divertidos y novedades del salón con respeto. No publiques datos privados, insultos ni acusaciones.</p>
+                    <form id="chismografoForm" class="formulario-pequeno">
+                        <label for="chismografoConQuien">¿Con quién quieres chismear?</label>
+                        <select id="chismografoConQuien" required>
+                            <option value="">Selecciona un compañero o compañera</option><option value="__aula__">📢 Todo el salón (público)</option>
+                        </select>
+                        <label for="chismografoTexto">¿Qué se cuenta hoy?</label>
+                        <textarea id="chismografoTexto" rows="3" maxlength="500" placeholder="Escribe tu chisme o novedad de forma respetuosa..." required></textarea>
+                        <button type="submit">Publicar chisme</button>
+                        <p id="chismografoMensaje" class="success"></p>
+                    </form>
+                    <div id="listaChismografo" class="list-simple"></div>
+                </div>
+				<div id="perfilPanel" class="panel"><h2>Mi perfil</h2><div id="perfilAvatarEstudiante"></div><p id="nombrePerfil"></p><form id="perfilDatosEstudianteForm" class="formulario-pequeno"><label for="perfilTardesEstudiante">¿Qué haces por las tardes?</label><input id="perfilTardesEstudiante" placeholder="Ej. Entreno fútbol o estudio música" required><label for="perfilInteresesEstudiante">Mis intereses</label><input id="perfilInteresesEstudiante" placeholder="Ej. Ciencia, dibujo y videojuegos" required><label for="perfilDescripcionEstudiante">Sobre mí</label><textarea id="perfilDescripcionEstudiante" rows="3" placeholder="Cuéntale algo a tu comunidad" required></textarea><button type="submit">Guardar información</button><p id="perfilDatosEstudianteMensaje" class="success"></p></form><form id="fotoPerfilEstudianteForm" class="formulario-pequeno"><label for="fotoPerfilEstudiante">Foto de perfil</label><input id="fotoPerfilEstudiante" type="file" accept="image/*" required><button type="submit">Guardar foto</button><p id="fotoPerfilEstudianteMensaje" class="success"></p></form><form id="contrasenaForm"><label for="nuevaContrasena">Nueva contraseña</label><input id="nuevaContrasena" type="password" minlength="4" required autocomplete="new-password"><button type="submit">Cambiar contraseña</button><p id="contrasenaMensaje" class="success"></p></form></div>
+				<div id="manualPanel" class="panel"><h2>Manual de uso</h2><div class="list-simple"><div class="list-item"><strong>Materias y calificaciones</strong><p>Consulta tus asignaturas y revisa las notas separadas por periodo.</p></div><div class="list-item"><strong>Aulas</strong><p>Ingresa con el código del profesor y consulta la información del aula.</p></div><div class="list-item"><strong>Tareas, calendario y evidencias</strong><p>Revisa fechas, entregas y sube archivos o enlaces desde Evidencias.</p></div><div class="list-item"><strong>Asistencia y anuncios</strong><p>Consulta la asistencia y los anuncios de tus aulas.</p></div><div class="list-item"><strong>ClassCoins, ranking y logros</strong><p>Consulta monedas, rankings, logros y recompensas del Mercado.</p></div><div class="list-item"><strong>El Chismógrafo</strong><p>Comparte novedades con respeto y sin datos privados, insultos ni acusaciones.</p></div><div class="list-item"><strong>Perfil y asistente</strong><p>Actualiza tus datos, foto y contraseña. Pregunta al asistente por tareas, aulas, notas o secciones.</p></div></div></div>
+				<button class="secondary salir">Cerrar sesión</button>
+			</section>
+
+			<section id="profesor" class="card hidden">
+				<div id="profesorCalificaciones" class="panel"><h2>Calificaciones</h2>
+					<p>Envía y administra las calificaciones de los estudiantes.</p>
+					<form id="notaForm">
+						<label for="alumno">Estudiante</label><select id="alumno"></select>
+						<label for="notaAula">Aula</label><select id="notaAula" required></select>
+						<label for="materia">Materia</label><select id="materia" required><option value="">Selecciona una materia</option></select><div id="otroMateriaWrap" class="hidden"><label for="otroMateria">Escribe la materia</label><input id="otroMateria" placeholder="Nombre de la materia"></div>
+						<label for="notaPeriodo">Periodo</label><select id="notaPeriodo" required></select>
+						<label for="notaTipo">¿De qué es la nota?</label><input id="notaTipo" placeholder="Ej. Examen, tarea, proyecto" required><label for="notaPorcentaje">Porcentaje de la nota (%)</label><input id="notaPorcentaje" type="number" min="1" max="100" step="1" required><label for="nota">Calificación (1 a 5)</label><input id="nota" type="number" min="1" max="5" step="0.1" required>
+						<button type="submit">Guardar calificación</button><p id="notaMensaje"></p>
+					</form>
+				</div>
+				<div id="profesorInicio" class="panel activo"><h2>Panel del profesor</h2>
+					<div id="inicioAnunciosProfesor" class="list-simple"></div>
+					<div class="quick-grid">
+						<div class="metric-card"><span>Grupos</span><strong id="statGrupos">0</strong></div>
+						<div class="metric-card"><span>Estudiantes</span><strong id="statGrupoEstudiantes">0</strong></div>
+					</div>
+				<div class="profesor-contenido-grid">
+				<form id="profesorEstudianteForm" class="formulario-pequeno">
+					<h2>Crear cuenta para estudiante</h2>
+					<label for="nuevoEstudianteUsuario">Usuario</label><input id="nuevoEstudianteUsuario" required>
+					<label for="nuevoEstudianteNombre">Nombre completo</label><input id="nuevoEstudianteNombre" required>
+					<label for="nuevoEstudianteInstitucion">Institución</label><select id="nuevoEstudianteInstitucion" required></select>
+					<label for="nuevaClaveEstudianteProfesor">Contraseña</label><input id="nuevaClaveEstudianteProfesor" type="password" minlength="4" required autocomplete="new-password">
+					<button type="submit">Crear estudiante</button><p id="profesorEstudianteMensaje" class="success"></p>
+				</form>
+				<form id="anuncioForm" class="formulario-pequeno">
+					<h2>Enviar anuncio</h2>
+					<label for="anuncioAula">Grupo / aula</label><select id="anuncioAula" required></select>
+					<label for="anuncioTitulo">Título</label><input id="anuncioTitulo" required>
+					<label for="anuncioTexto">Mensaje</label><input id="anuncioTexto" required>
+					<button type="submit">Publicar</button><p id="anuncioMensaje" class="success"></p>
+				</form>
+				<div class="admin-personas-grid">
+					<form id="profesorMateriaForm" class="formulario-pequeno">
+						<h2>Crear materia</h2>
+						<label for="profesorMateriaNombre">Materia</label><select id="profesorMateriaNombre" required><option value="">Selecciona una materia</option><option>Inglés</option><option>Lengua Castellana</option><option>Matemáticas</option><option>Ciencias Naturales</option><option>Ciencias Sociales</option><option>Educación Física</option><option>Educación Artística</option><option>Tecnología e Informática</option><option>Ética y Valores</option><option>Religión</option><option value="Otro">Otro</option></select><input id="profesorMateriaOtro" class="hidden" placeholder="Escribe el nombre de la materia">
+						<label for="profesorMateriaAula">Aula</label><select id="profesorMateriaAula" required></select>
+						<button type="submit">Crear materia</button><p id="profesorMateriaMensaje" class="success"></p>
+					</form>
+					<form id="profesorAulaForm" class="formulario-pequeno">
+						<h2>Crear aula</h2>
+						<label for="profesorAulaNombre">Nombre del aula</label><input id="profesorAulaNombre" placeholder="Ej. Aula 204" required>
+						<label for="profesorAulaHorario">Horario</label><input id="profesorAulaHorario" placeholder="Lunes · 8:00 - 10:00" required>
+						<button type="submit">Crear aula</button><p id="profesorAulaMensaje" class="success"></p>
+					</form>
+				</div>
+				</div>
+				<div id="profesorNotificaciones" class="panel"><h2>Notificaciones</h2><div id="listaNotificacionesProfesor" class="list-simple"></div></div>
+				<div><h2>Mis materias</h2><div id="listaMateriasProfesor" class="list-simple"></div></div>
+				<div><h2>Mis aulas</h2><div id="listaAulasProfesor" class="list-simple"></div></div>
+				<div>
+					<h2>Sesiones programadas</h2>
+					<div id="listaSesionesProfesor" class="lista-sesiones"></div>
+				</div>
+				<h2>Cuaderno de evaluación</h2><p>Vista tipo cuaderno: actividades con porcentajes y estudiantes ordenados alfabéticamente.</p><div id="cuadernoEvaluacionProfesor" class="table-scroll"></div><table><thead><tr><th>Estudiante</th><th>Materia</th><th>Nota</th><th>Acciones</th></tr></thead><tbody id="tablaProfesor"></tbody></table></div>
+				<div id="profesorTareas" class="panel">
+					<h2>Crear tarea</h2>
+					<form id="tareaProfesorForm" class="formulario-pequeno">
+						<label for="tareaAula">Aula</label><select id="tareaAula" required></select>
+						<label for="tareaTitulo">Título</label><input id="tareaTitulo" required>
+						<label for="tareaDescripcion">Descripción</label><input id="tareaDescripcion" required>
+						<label for="tareaFecha">Fecha límite</label><input id="tareaFecha" type="date" required>
+						<button type="submit">Guardar tarea</button><p id="tareaProfesorMensaje" class="success"></p>
+					</form>
+					<h2>Listado de tareas</h2>
+					<div id="listaTareasProfesor" class="list-simple"></div>
+				</div>
+				<div id="profesorEvidencias" class="panel">
+					<h2>Revisar evidencias</h2>
+					<p>Consulta los trabajos enviados y marca cada evidencia como revisada o solicita cambios.</p>
+					<div id="listaEvidenciasProfesor" class="list-simple"></div>
+				</div>
+				<div id="profesorAsistencia" class="panel">
+					<h2>Registrar asistencia</h2>
+					<form id="asistenciaForm" class="formulario-pequeno">
+						<label for="asistenciaEstudiante">Estudiante</label><select id="asistenciaEstudiante"></select>
+						<label for="asistenciaFecha">Fecha</label><input id="asistenciaFecha" type="date" required>
+						<label for="asistenciaPeriodo">Periodo</label><select id="asistenciaPeriodo" required></select>
+						<label for="asistenciaEstado">Estado</label>
+						<select id="asistenciaEstado">
+							<option value="Presente">Presente</option>
+							<option value="Tarde">Tarde</option>
+							<option value="Falta">Falta</option>
+						</select>
+						<button type="submit">Guardar asistencia</button><p id="asistenciaMensaje" class="success"></p>
+					</form>
+					<h2>Historial</h2>
+					<div id="listaAsistenciaProfesor" class="list-simple"></div>
+				</div>
+				<div id="profesorMonedas" class="panel">
+				<h2>Dar ClassCoins</h2>
+				<form id="monedasForm">
+					<label for="alumnoMonedas">Estudiante</label><select id="alumnoMonedas"></select>
+					<label for="materiaMonedas">Materia</label><select id="materiaMonedas"></select>
+					<label for="cantidadMonedas">Cantidad</label><input id="cantidadMonedas" type="number" min="1" max="1000" step="1" required>
+					<button type="submit">Entregar ClassCoins</button><p id="monedasMensaje" class="success"></p>
+				</form>
+				</div>
+				<div id="profesorRanking" class="panel"><h2>Rankings del salón</h2><p>Consulta las clasificaciones de estudiantes de tu institución.</p><h3>Ranking de ClassCoins</h3><table><thead><tr><th>Posición</th><th>Estudiante</th><th>ClassCoins</th></tr></thead><tbody id="rankingCoinsProfesor"></tbody></table><h3>Ranking de calificaciones</h3><table><thead><tr><th>Posición</th><th>Estudiante</th><th>Promedio de calificaciones</th></tr></thead><tbody id="rankingProfesor"></tbody></table></div>
+				<div id="profesorPerfil" class="panel"><h2>Perfil del profesor</h2><div id="perfilAvatarProfesor"></div><form id="perfilDatosProfesorForm" class="formulario-pequeno"><label for="perfilTardesProfesor">¿Qué haces por las tardes?</label><input id="perfilTardesProfesor" placeholder="Ej. Preparo clases o practico un hobby" required><label for="perfilInteresesProfesor">Mis intereses</label><input id="perfilInteresesProfesor" placeholder="Ej. Lectura, tecnología y arte" required><label for="perfilDescripcionProfesor">Sobre mí</label><textarea id="perfilDescripcionProfesor" rows="3" placeholder="Comparte una breve presentación" required></textarea><button type="submit">Guardar información</button><p id="perfilDatosProfesorMensaje" class="success"></p></form><form id="fotoPerfilProfesorForm" class="formulario-pequeno"><label for="fotoPerfilProfesor">Foto de perfil</label><input id="fotoPerfilProfesor" type="file" accept="image/*" required><button type="submit">Guardar foto</button><p id="fotoPerfilProfesorMensaje" class="success"></p></form><form id="contrasenaProfesorForm" class="formulario-pequeno"><label for="nuevaContrasenaProfesor">Nueva contraseña</label><input id="nuevaContrasenaProfesor" type="password" minlength="4" required autocomplete="new-password"><button type="submit">Cambiar contraseña</button><p id="contrasenaProfesorMensaje" class="success"></p></form></div>
+				<div id="profesorManual" class="panel"><h2>Manual de uso</h2><div class="list-simple"><div class="list-item"><strong>Calificaciones por periodo</strong><p>Selecciona estudiante, aula, materia, periodo, actividad, porcentaje y nota. Se admiten notas con un decimal.</p></div><div class="list-item"><strong>Cuaderno de evaluación</strong><p>Registra actividades, porcentajes y consulta el promedio ponderado.</p></div><div class="list-item"><strong>Aulas y materias</strong><p>Crea materias predefinidas o usa “Otro”. Crea aulas y comparte sus códigos.</p></div><div class="list-item"><strong>Tareas, evidencias y asistencia</strong><p>Crea tareas para un aula, revisa entregas y registra asistencia por periodo.</p></div><div class="list-item"><strong>ClassCoins y rankings</strong><p>Entrega ClassCoins y consulta los rankings de monedas y calificaciones.</p></div><div class="list-item"><strong>Perfil y asistente</strong><p>Actualiza tus datos, foto y contraseña; usa el asistente para encontrar funciones.</p></div></div></div>
+				<button class="secondary salir">Cerrar sesión</button>
+			</section>
+
+			<section id="administrador" class="card hidden">
+				<div id="adminInicio" class="panel activo">
+				<h2 id="tituloPanelAdmin">Panel del administrador</h2>
+				<p id="subtituloPanelAdmin">Gestiona el salón, los profesores y las recompensas.</p>
+				<div id="inicioAnunciosAdmin" class="list-simple"></div>
+				<section class="card" style="margin:16px 0;"><h2>Configuración de periodos</h2><p>Elige cuántos periodos tendrá tu institución y define la fecha de finalización de cada uno.</p><form id="configPeriodosForm" class="formulario-pequeno"><label for="cantidadPeriodos">Cantidad de periodos</label><select id="cantidadPeriodos" required><option value="1">1 periodo</option><option value="2">2 periodos</option><option value="3">3 periodos</option><option value="4" selected>4 periodos</option></select><div id="fechasPeriodosConfig"></div><button type="submit">Guardar periodos</button><p id="configPeriodosMensaje" class="success"></p></form></section>
+				<form id="adminAnuncioForm" class="formulario-pequeno"><h2>Publicar anuncio</h2><label for="adminAnuncioAula">Grupo / aula</label><select id="adminAnuncioAula" required></select><label for="adminAnuncioTitulo">Título</label><input id="adminAnuncioTitulo" required><label for="adminAnuncioTexto">Mensaje</label><textarea id="adminAnuncioTexto" rows="3" required></textarea><button type="submit">Publicar anuncio</button><p id="adminAnuncioMensaje" class="success"></p></form>
+				<div class="resumen-admin">
+					<div class="metric-card"><span>Estudiantes</span><strong id="statEstudiantes">0</strong></div>
+					<div class="metric-card"><span>Profesores</span><strong id="statProfesores">0</strong></div>
+					<div class="metric-card"><span>Materias</span><strong id="statMaterias">0</strong></div>
+					<div class="metric-card"><span>Aulas</span><strong id="statAulas">0</strong></div>
+				</div>
+				<section class="card admin-herramientas" style="margin:16px 0;">
+  <h2>Herramientas de seguridad</h2>
+  <p>Guarda una copia de los datos de la plataforma o restaura una copia anterior en este navegador.</p>
+  <div class="admin-acciones-rapidas">
+    <button type="button" id="exportarRespaldo">Exportar respaldo</button>
+    <label class="button secondary" for="importarRespaldo" style="display:inline-flex;align-items:center;justify-content:center;cursor:pointer;">Importar respaldo</label>
+    <input id="importarRespaldo" type="file" accept="application/json" class="hidden">
+  </div>
+  <p id="respaldoMensaje" class="success"></p>
+</section>
+<section class="card admin-centro-control">
+					<h2>Centro de control</h2>
+					<p>Consulta rápidamente el estado de tu institución y accede a las tareas más importantes.</p>
+					<div class="resumen-admin">
+						<div class="metric-card"><span>Notas registradas</span><strong id="statCalificaciones">0</strong></div>
+						<div class="metric-card"><span>Asistencia registrada</span><strong id="statAsistenciaRegistros">0</strong></div>
+						<div class="metric-card"><span>Materias sin aula</span><strong id="statMateriasSinAula">0</strong></div>
+						<div class="metric-card"><span>Periodos configurados</span><strong id="statPeriodosConfigurados">0</strong></div>
+					</div>
+					<div class="admin-acciones-rapidas">
+						<button type="button" data-admin-accion="adminPersonas">Gestionar personas</button>
+						<button type="button" data-admin-accion="adminClases">Gestionar aulas y materias</button>
+						<button type="button" data-admin-accion="adminInicio">Configurar periodos</button>
+						<button type="button" data-admin-accion="adminMercado">Administrar recompensas</button>
+					</div>
+					<div id="alertasAdmin" class="list-simple"></div>
+				</section>
+				<div class="admin-personas-grid">
+					<form id="materiaForm" class="formulario-pequeno">
+						<h2>Crear materia</h2>
+						<label for="materiaNombre">Materia</label><select id="materiaNombre" required><option value="">Selecciona una materia</option><option>Inglés</option><option>Lengua Castellana</option><option>Matemáticas</option><option>Ciencias Naturales</option><option>Ciencias Sociales</option><option>Educación Física</option><option>Educación Artística</option><option>Tecnología e Informática</option><option>Ética y Valores</option><option>Religión</option><option value="Otro">Otro</option></select><input id="materiaOtro" class="hidden" placeholder="Escribe el nombre de la materia">
+						<label for="materiaProfesor">Profesor</label><select id="materiaProfesor"></select>
+						<label for="materiaAula">Aula</label><select id="materiaAula" required></select>
+						<button type="submit">Guardar materia</button><p id="materiaMensaje" class="success"></p>
+					</form>
+					<div class="formulario-pequeno">
+						<h2>Personas en línea</h2>
+						<p>Usuarios activos en los últimos 2 minutos.</p>
+						<div id="listaPersonasEnLineaAdmin" class="list-simple"></div>
+					</div>
+				</div>
+			</div>
+				<div id="adminNotificaciones" class="panel"><h2>Notificaciones</h2><div id="listaNotificacionesAdmin" class="list-simple"></div></div>
+				<div id="adminClases" class="panel">
+					<h2>Administrar aulas y horarios</h2>
+					<form id="aulaForm" class="formulario-pequeno">
+						<label for="aulaNombre">Nombre del aula</label><input id="aulaNombre" required>
+						<label for="aulaHorario">Horario</label><input id="aulaHorario" required>
+						<label for="aulaProfesor">Profesor responsable</label><select id="aulaProfesor"></select>
+						<button type="submit">Guardar aula</button><p id="aulaMensaje" class="success"></p>
+					</form>
+					<h2>Materias registradas</h2>
+					<div id="listaMateriasAdmin" class="list-simple"></div>
+					<div id="listaAulasAdmin" class="list-simple"></div>
+				</div>
+				<div id="adminDescubre" class="panel">
+					<h2>Descubre ClassPoint</h2>
+					<section class="feature-grid">
+						<div class="feature-card">
+							<div class="feature-icon">✦</div>
+							<h3>Demuestra</h3>
+							<p>Presenta proyectos y evidencias reales de lo que haces, aprendes y aportas.</p>
+						</div>
+						<div class="feature-card">
+							<div class="feature-icon">✓</div>
+							<h3>Valida</h3>
+							<p>Un docente revisa la evidencia y reconoce los valores que hiciste visibles.</p>
+						</div>
+						<div class="feature-card">
+							<div class="feature-icon">✧</div>
+							<h3>Evoluciona</h3>
+							<p>Obtén insignias y ClassCoins mientras construyes una trayectoria que es solo tuya.</p>
+						</div>
+					</section>
+					<section class="story">
+						<div class="story-grid">
+							<div class="story-card">
+								<h2>Tu nombre, tus logros</h2>
+								<p>El progreso de cada estudiante no se mide solo por números, sino por la historia de esfuerzo, trabajo en equipo y crecimiento personal que hay detrás.</p>
+								<div class="story-step">
+									<div class="step-num">01</div>
+									<div>
+										<h3>Demuestra</h3>
+										<p>Sube tus tareas, evidencias y proyectos para que queden visibles.</p>
+									</div>
+								</div>
+								<div class="story-step">
+									<div class="step-num">02</div>
+									<div>
+										<h3>Valida</h3>
+										<p>Los docentes acompañan con retroalimentación y reconocimiento.</p>
+									</div>
+								</div>
+							</div>
+							<div class="story-card">
+								<h2>El valor no está en la moneda</h2>
+								<p><strong>Está en la acción que representa.</strong> Los ClassCoins no compran virtudes. Hacen visible el esfuerzo, el servicio, la responsabilidad y las decisiones que construyen comunidad.</p>
+								<p>Tu recorrido académico se convierte en una narrativa clara, reconocible y motivadora.</p>
+							</div>
+						</div>
+					</section>
+					<section class="mission">
+						<h2>Mercado de logros y recompensas</h2>
+						<p>Diseñado para que cada avance tenga sentido: reconocer esfuerzo, compartir progreso y celebrar el aprendizaje con claridad.</p>
+					</section>
+				</div>
+				<div id="adminPersonas" class="panel">
+					<div class="admin-personas-grid">
+						<form id="profesorForm" class="formulario-pequeno">
+							<h2>Profesores</h2>
+							<label for="nuevoProfesorUsuario">Usuario</label><input id="nuevoProfesorUsuario" required>
+							<label for="nuevoProfesorNombre">Nombre completo</label><input id="nuevoProfesorNombre" required>
+							<label for="nuevaClaveProfesor">Contraseña</label><input id="nuevaClaveProfesor" type="password" minlength="4" required>
+							<button type="submit">Añadir profesor</button><p id="profesorMensaje" class="success"></p>
+						</form>
+						<form id="estudianteForm" class="formulario-pequeno">
+							<h2>Estudiantes</h2>
+							<label for="nuevoUsuario">Usuario</label><input id="nuevoUsuario" required>
+							<label for="nuevoNombre">Nombre completo</label><input id="nuevoNombre" required>
+						<label for="nuevoUsuarioInstitucion">Institución</label><select id="nuevoUsuarioInstitucion" required></select>
+							<label for="nuevaClave">Contraseña</label><input id="nuevaClave" type="password" minlength="4" required>
+							<button type="submit">Añadir estudiante</button><p id="estudianteMensaje" class="success"></p>
+						</form>
+					</div>
+					<div id="listaEstudiantesAdmin"></div>
+					<div id="listaProfesoresAdmin"></div>
+				</div>
+				<div id="adminMercado" class="panel"><h2>Administrar mercado</h2><form id="productoForm" class="formulario-pequeno"><label for="productoNombre">Nombre de la recompensa</label><input id="productoNombre" required><label for="productoDescripcion">Descripción</label><input id="productoDescripcion" required><label for="productoPrecio">Precio en ClassCoins</label><input id="productoPrecio" type="number" min="1" max="10000" step="1" required><button type="submit">Añadir recompensa</button><p id="productoMensaje" class="success"></p></form><div id="listaProductosProfesor"></div></div>
+				<div id="adminInstituciones" class="panel hidden"><h2>Administrar instituciones</h2><p>El creador original puede crear y organizar los espacios institucionales de ClassPoint.</p><form id="institucionForm" class="formulario-pequeno"><label for="nuevaInstitucion">Nombre de la institución</label><input id="nuevaInstitucion" required><button type="submit">Crear institución</button><p id="institucionMensaje" class="success"></p></form><div id="listaInstituciones" class="list-simple"></div></div>
+				<div id="adminPerfil" class="panel"><h2>Perfil del administrador</h2><div id="perfilAvatarAdmin"></div><form id="perfilDatosAdminForm" class="formulario-pequeno"><label for="perfilTardesAdmin">¿Qué haces por las tardes?</label><input id="perfilTardesAdmin" placeholder="Ej. Coordino proyectos educativos" required><label for="perfilInteresesAdmin">Mis intereses</label><input id="perfilInteresesAdmin" placeholder="Ej. Innovación y comunidad" required><label for="perfilDescripcionAdmin">Sobre mí</label><textarea id="perfilDescripcionAdmin" rows="3" placeholder="Comparte una breve presentación" required></textarea><button type="submit">Guardar información</button><p id="perfilDatosAdminMensaje" class="success"></p></form><form id="fotoPerfilAdminForm" class="formulario-pequeno"><label for="fotoPerfilAdmin">Foto de perfil</label><input id="fotoPerfilAdmin" type="file" accept="image/*" required><button type="submit">Guardar foto</button><p id="fotoPerfilAdminMensaje" class="success"></p></form><form id="adminPerfilForm" class="formulario-pequeno"><label for="adminUsuario">Usuario</label><input id="adminUsuario" required><label for="adminNombre">Nombre completo</label><input id="adminNombre" required><label for="adminClave">Nueva contraseña</label><input id="adminClave" type="password" minlength="4" required autocomplete="new-password"><button type="submit">Guardar cambios</button><p id="adminPerfilMensaje" class="success"></p></form></div>
+				<div id="adminManual" class="panel"><h2>Manual de uso</h2><div class="list-simple"><div class="list-item"><strong>Centro de control</strong><p>Consulta notas, asistencia, materias sin aula y periodos configurados. Usa los accesos rápidos.</p></div><div class="list-item"><strong>Personas</strong><p>Administra profesores y estudiantes de tu institución.</p></div><div class="list-item"><strong>Aulas, materias y periodos</strong><p>Crea y organiza aulas y materias. Configura de uno a cuatro periodos con sus fechas.</p></div><div class="list-item"><strong>Anuncios y Mercado</strong><p>Publica anuncios para un aula y administra las recompensas.</p></div><div class="list-item"><strong>Respaldo de datos</strong><p>Exporta una copia de la información e impórtala con cuidado cuando necesites restaurarla.</p></div><div class="list-item"><strong>Instituciones y perfil</strong><p>El creador original gestiona instituciones; actualiza tus datos y contraseña desde Perfil.</p></div><div class="list-item"><strong>Asistente ClassPoint</strong><p>Pregunta por estadísticas, personas, aulas, materias o secciones.</p></div></div></div>
+				<button class="secondary salir">Cerrar sesión</button>
+			</section>
+		</div>
+	</main>
+<style>
+.ai-assistant{width:min(410px,calc(100vw - 24px));border:1px solid #cfe4e8;background:#fbfefe}
+.ai-assistant-toggle{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:13px 15px;font-size:.98rem}
+.ai-assistant-toggle::after{content:"⌄";font-size:1.1rem}
+.ai-assistant-body{padding:12px}
+.ai-assistant-title{display:flex;flex-direction:column;gap:3px;margin-bottom:10px}
+.ai-assistant-title strong{color:var(--dark);font-size:1.05rem}
+.ai-assistant-title small{color:var(--muted)}
+.ai-assistant-messages{max-height:290px;min-height:120px;padding:2px;scrollbar-width:thin}
+.ai-message{white-space:pre-line;border:1px solid #dcebec}
+.ai-message.user{background:#e4f3f4;border-color:#c9e5e6}
+.ai-assistant-suggestions{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.assistant-suggestion{width:auto;margin:0;padding:7px 9px;background:#edf7f7;color:var(--primary-dark);box-shadow:none;font-size:.78rem}
+.assistant-suggestion:hover{background:var(--accent-soft);box-shadow:none}
+.ai-assistant-form{align-items:center;border-top:1px solid #e7eeee;padding-top:9px}
+.ai-assistant-form input{border-radius:10px}
+.ai-assistant-form button{width:auto;margin:0}
+.ai-result-actions{display:flex;gap:6px;margin-top:7px}
+.ai-result-actions button{width:auto;margin:0;padding:6px 8px;font-size:.75rem}
+.ai-typing{opacity:.7;font-style:italic}
+
+		.periodos-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:20px 0 26px;}
+		.periodo-card{background:linear-gradient(145deg,#fff,#f1f7fa);border:1px solid #dce9ef;border-radius:18px;padding:18px;box-shadow:0 8px 20px rgba(18,52,77,.07);}
+		.periodo-card h4{margin:0 0 14px;color:var(--primary-dark);font-size:1.05rem;}
+		.periodo-card div{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 0;border-top:1px solid #e5eef2;}
+		.periodo-card span{font-size:.82rem;color:var(--muted);}
+		.periodo-card strong{font-size:1.35rem;color:var(--dark);}
+		.periodo-card small{display:block;margin-top:12px;color:var(--muted);font-size:.75rem;}
+		.periodo-detalle{margin-top:14px;} .boton-ver-periodo{display:inline-block;cursor:pointer;background:var(--primary,#2563eb);color:#fff;padding:10px 13px;border-radius:10px;font-weight:700;list-style:none;} .boton-ver-periodo::-webkit-details-marker{display:none;} .periodo-detalle[open] .boton-ver-periodo{background:var(--primary-dark,#1d4ed8);margin-bottom:10px;}
+		.insignias-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin:16px 0 24px;}
+		.insignia-card{border-radius:18px;padding:18px;text-align:center;border:1px solid #dce9ef;background:#fff;box-shadow:0 8px 20px rgba(18,52,77,.06);transition:transform .2s,box-shadow .2s;}
+		.insignia-card:hover{transform:translateY(-3px);box-shadow:0 12px 26px rgba(18,52,77,.11);}
+		.insignia-card.bloqueada{background:#f5f7f9;opacity:.72;}
+		.insignia-card.desbloqueada{background:linear-gradient(145deg,#fff,#e8faf4);border-color:#9bdccd;}
+		.insignia-icono{font-size:2.4rem;margin-bottom:8px;}
+		.insignia-card h4{margin:8px 0;color:var(--dark);font-size:1rem;}
+		.insignia-requisito{font-size:.82rem;line-height:1.5;color:var(--muted);min-height:62px;}
+		.insignia-estado{display:inline-block;margin-top:10px;padding:6px 10px;border-radius:999px;background:#e8eef2;color:var(--dark);font-size:.75rem;font-weight:700;}
+		.desbloqueada .insignia-estado{background:#c9f2e4;color:#12634f;}
+		@media(max-width:800px){.periodos-grid{grid-template-columns:repeat(2,minmax(0,1fr));}}
+</style>
+
+	<div id="aiAssistant" class="ai-assistant hidden">
+    <button id="aiAssistantToggle" class="ai-assistant-toggle" type="button">🤖 Asistente ClassPoint <span aria-hidden="true">•</span></button>
+    <div id="aiAssistantBody" class="ai-assistant-body hidden">
+        <div class="ai-assistant-title">
+            <strong>Asistente ClassPoint</strong>
+            <small>Pregunta, busca o pide ayuda con tu plataforma</small>
+        </div>
+        <div id="aiAssistantMessages" class="ai-assistant-messages">
+            <div class="ai-message">¡Hola! 👋 Soy el Asistente ClassPoint. Puedo consultar tu información, buscar dentro de la plataforma y llevarte a la sección correcta.</div>
+        </div>
+        <div class="ai-assistant-suggestions">
+            <button type="button" class="assistant-suggestion" data-question="¿Cuál es mi promedio?">📊 Mi promedio</button>
+            <button type="button" class="assistant-suggestion" data-question="Buscar mis tareas">🔎 Buscar tareas</button>
+            <button type="button" class="assistant-suggestion" data-question="¿Qué insignias puedo ganar?">🏆 Mis insignias</button>
+        </div>
+        <form id="aiAssistantForm" class="ai-assistant-form">
+            <input id="aiAssistantInput" placeholder="Escribe una pregunta o algo que quieras buscar..." autocomplete="off" required>
+            <button type="submit">Enviar</button>
+        </form>
+    </div>
+</div>
+	<script>
+		const normalizarTexto = valor => String(valor ?? '').trim().toLowerCase();
+
+        function actualizarMetricasEstudiante(usuario) {
+            if (!usuario) return;
+            const notas = calificaciones.filter(n => n.usuario === usuario.usuario && perteneceInstitucion(n));
+            const promedio = notas.length
+                ? (notas.reduce((s, n) => s + Number(n.nota || 0), 0) / notas.length).toFixed(1)
+                : '—';
+            const pendientes = tareas.filter(t => t.usuario === usuario.usuario && t.estado !== 'entregada').length;
+            if ($('statPromedio')) $('statPromedio').textContent = promedio;
+            if ($('statTareasPendientes')) $('statTareasPendientes').textContent = pendientes;
+            if ($('statAsistencia')) $('statAsistencia').textContent = calcularAsistencia(usuario) + '%';
+            if ($('statLogros')) $('statLogros').textContent = logros.filter(l => l.usuario === usuario.usuario).length;
+        }
+
+        function activarBusquedaGlobal() {
+            // La búsqueda ahora está integrada directamente en el Asistente ClassPoint.
+        }
+
+        function mostrarHerramientasRapidas(mostrar) {
+            const assistant = $('aiAssistant');
+            if (assistant) assistant.classList.toggle('hidden', !mostrar);
+        }
+
+		const leerJSON = (clave, valorInicial) => {
+			try {
+				const valor = localStorage.getItem(clave);
+				return valor ? JSON.parse(valor) : valorInicial;
+			} catch (error) {
+				localStorage.removeItem(clave);
+				return valorInicial;
+			}
+		};
+		const institucionPrincipal = 'Institución principal';
+		let instituciones = leerJSON('instituciones', [{ id:'institucion-principal', nombre:institucionPrincipal }]);
+		let configuracionesPeriodos = leerJSON('configuracionesPeriodos', {});
+		function obtenerConfigPeriodos(institucion) { const config = configuracionesPeriodos[institucion] || { cantidad:4, fechas:{} }; config.cantidad = Math.min(4, Math.max(1, Number(config.cantidad) || 4)); config.fechas = config.fechas || {}; return config; }
+		function guardarConfigPeriodos(institucion, config) { configuracionesPeriodos[institucion] = config; localStorage.setItem('configuracionesPeriodos', JSON.stringify(configuracionesPeriodos)); }
+		function periodosDisponibles() { const config = obtenerConfigPeriodos(institucionSesion()); return Array.from({length:config.cantidad}, (_,i)=>i+1); }
+		function renderSelectoresPeriodos() { const periodos = periodosDisponibles(); ['notaPeriodo','asistenciaPeriodo'].forEach(id => { const select=$(id); if (!select) return; const actual=select.value; select.innerHTML=periodos.map(n=>`<option value="${n}">Periodo ${n}</option>`).join(''); if (periodos.includes(Number(actual))) select.value=actual; }); }
+		function renderConfiguracionPeriodos() { const admin=usuarioSesion(); const config=obtenerConfigPeriodos(admin?.institucion || institucionPrincipal); if ($('cantidadPeriodos')) $('cantidadPeriodos').value=String(config.cantidad); if ($('fechasPeriodosConfig')) $('fechasPeriodosConfig').innerHTML=Array.from({length:config.cantidad},(_,i)=>{const n=i+1; return `<label for="fechaPeriodo${n}">Fecha de finalización del periodo ${n}</label><input id="fechaPeriodo${n}" type="date" value="${config.fechas[n] || ''}" required>`;}).join(''); }
+		const usuarios = [
+			{ usuario:'admin', clave:'admin', nombre:'Creador original', rol:'creadorOriginal', institucion:institucionPrincipal },
+			{ usuario:'profesor', clave:'admin', nombre:'Profesor', rol:'profesor', institucion:institucionPrincipal },
+			{ usuario:'ana', clave:'1234', nombre:'Ana García', rol:'estudiante', institucion:institucionPrincipal },
+			{ usuario:'luis', clave:'5678', nombre:'Luis Pérez', rol:'estudiante', institucion:institucionPrincipal }
+		];
+		leerJSON('estudiantesExtra', []).forEach(estudiante => usuarios.push(estudiante));
+		leerJSON('profesoresExtra', []).forEach(profesor => usuarios.push(profesor));
+		leerJSON('administradoresExtra', []).forEach(administrador => usuarios.push(administrador));
+		const perfilAdminGuardado = leerJSON('perfilAdministrador', null);
+		if (perfilAdminGuardado) Object.assign(usuarios.find(u => u.rol === 'creadorOriginal' || u.rol === 'administrador'), perfilAdminGuardado, { rol:'creadorOriginal' });
+		usuarios.forEach(usuario => { if (usuario.rol === 'administrador' && usuario.usuario === 'admin') usuario.rol = 'creadorOriginal'; if (!String(usuario.institucion || '').trim()) usuario.requiereInstitucion = true; });
+		const institucionesUsuariosGuardadas = leerJSON('institucionesUsuarios', {});
+		usuarios.forEach(usuario => { if (institucionesUsuariosGuardadas[usuario.usuario]) usuario.institucion = institucionesUsuariosGuardadas[usuario.usuario]; });
+		localStorage.setItem('instituciones', JSON.stringify(instituciones));
+		const estudiantesEliminados = leerJSON('estudiantesEliminados', []);
+		estudiantesEliminados.forEach(usuario => { const indice = usuarios.findIndex(u => u.usuario === usuario); if (indice >= 0) usuarios.splice(indice, 1); });
+		usuarios.forEach(u => { const claveGuardada = localStorage.getItem(`clave-${u.usuario}`); if (claveGuardada) u.clave = claveGuardada; });
+		let calificaciones = leerJSON('calificaciones', []);
+		let materias = leerJSON('materias', []);
+		let sesiones = leerJSON('sesiones', []);
+			let tareas = leerJSON('tareas', []);
+			let evidencias = leerJSON('evidencias', []);
+			let logros = leerJSON('logros', []);
+			let asistencia = leerJSON('asistencia', []);
+			let aulas = leerJSON('aulas', []);
+		let monedas = leerJSON('monedas', {});
+		let compras = leerJSON('compras', {});
+		let fotosPerfil = leerJSON('fotosPerfil', {});
+		let perfiles = leerJSON('perfiles', {});
+		let anuncios = leerJSON('anuncios', []);
+		if (localStorage.getItem('economiaVersion') !== '3') { monedas = {}; localStorage.setItem('economiaVersion', '3'); localStorage.setItem('monedas', '{}'); }
+			if (!tareas.length) {
+				tareas = [
+					{ id:'tarea-1', usuario:'ana', titulo:'Ensayo de ciencias', descripcion:'Entrega el resumen del experimento', fecha:'2026-09-20', estado:'pendiente' },
+					{ id:'tarea-2', usuario:'luis', titulo:'Mapa conceptual', descripcion:'Elabora el mapa de la unidad 3', fecha:'2026-09-22', estado:'pendiente' }
+				];
+			}
+			if (!logros.length) {
+				logros = [
+					{ id:'logro-1', usuario:'ana', titulo:'Primera entrega', detalle:'Entregó su primera tarea a tiempo' },
+					{ id:'logro-2', usuario:'luis', titulo:'Participación activa', detalle:'Participó con constancia en clase' }
+				];
+			}
+			if (!aulas.length) {
+				aulas = [
+					{ id:'aula-1', nombre:'Aula 101', horario:'Lunes a Viernes · 8:00 - 10:00', profesor:'profesor', codigo:'CP-AULA-01', estudiantes:[] },
+					{ id:'aula-2', nombre:'Laboratorio 3', horario:'Martes y Jueves · 10:30 - 12:00', profesor:'admin', codigo:'CP-LABO-02', estudiantes:[] }
+				];
+			}
+			aulas.forEach(aula => { aula.estudiantes = Array.isArray(aula.estudiantes) ? aula.estudiantes : []; if (!aula.codigo) aula.codigo = `CP-${Math.random().toString(36).slice(2, 6).toUpperCase()}-${Math.floor(Math.random() * 90 + 10)}`; });
+			localStorage.setItem('aulas', JSON.stringify(aulas));
+		let productos = leerJSON('productos', null) || [{ id:'descanso', nombre:'Descanso anticipado', descripcion:'Salir 10 minutos antes al descanso.', precio:20, institucion:institucionPrincipal }, { id:'examen', nombre:'+1 en un examen', descripcion:'Canjea una ayuda de un punto para un examen.', precio:30, institucion:institucionPrincipal }];
+		const institucionDeUsuario = usuario => usuarios.find(item => item.usuario === usuario)?.institucion || institucionPrincipal;
+		materias.forEach(item => { if (!item.institucion) item.institucion = institucionDeUsuario(item.profesor); });
+		aulas.forEach(item => { if (!item.institucion) item.institucion = institucionDeUsuario(item.profesor); });
+		calificaciones.forEach(item => { if (!item.institucion) item.institucion = institucionDeUsuario(item.usuario); });
+		calificaciones.forEach(item => { if (!item.periodo) item.periodo = '1'; });
+		asistencia.forEach(item => { if (!item.periodo) item.periodo = '1'; });
+		materias.forEach(item => { if (!item.aulaId) { const aulasProfesor = aulas.filter(aula => aula.profesor === item.profesor); if (aulasProfesor.length === 1) item.aulaId = aulasProfesor[0].id; } });
+		tareas.forEach(item => { if (!item.institucion) item.institucion = institucionDeUsuario(item.usuario); });
+		sesiones.forEach(item => { if (!item.institucion) item.institucion = institucionPrincipal; });
+		evidencias.forEach(item => { if (!item.institucion) item.institucion = institucionDeUsuario(item.usuario); });
+		asistencia.forEach(item => { if (!item.institucion) item.institucion = institucionDeUsuario(item.usuario); });
+		productos.forEach(item => { if (!item.institucion) item.institucion = institucionPrincipal; });
+		localStorage.setItem('materias', JSON.stringify(materias)); localStorage.setItem('aulas', JSON.stringify(aulas)); localStorage.setItem('calificaciones', JSON.stringify(calificaciones)); localStorage.setItem('tareas', JSON.stringify(tareas)); localStorage.setItem('sesiones', JSON.stringify(sesiones)); localStorage.setItem('evidencias', JSON.stringify(evidencias)); localStorage.setItem('asistencia', JSON.stringify(asistencia));
+		localStorage.setItem('productos', JSON.stringify(productos));
+		const $ = id => document.getElementById(id);
+		limpiarNotificacionesExpiradas();
+
+		function obtenerInsigniasAsistente(usuario) {
+			if (!usuario || usuario.rol !== 'estudiante') return [];
+			const tareasUsuario = tareas.filter(t => t.usuario === usuario.usuario);
+			const completadas = tareasUsuario.filter(t => ['completada','entregada'].includes(normalizarTexto(t.estado))).length;
+			const notasUsuario = calificaciones.filter(n => n.usuario === usuario.usuario && perteneceInstitucion(n));
+			const promedio = notasUsuario.length ? notasUsuario.reduce((s,n) => s + Number(n.nota || 0), 0) / notasUsuario.length : 0;
+			const registros = asistencia.filter(a => a.usuario === usuario.usuario);
+			const asistenciaPct = calcularAsistencia(usuario);
+			const evidenciasUsuario = evidencias.filter(e => e.usuario === usuario.usuario);
+			const aprobadas = evidenciasUsuario.filter(e => normalizarTexto(e.estado) === 'aprobada').length;
+			return [
+				['🚀 Primera entrega','Completa tu primera tarea.',completadas >= 1],
+				['📚 Constancia','Completa 3 tareas.',completadas >= 3],
+				['⭐ Excelencia académica','Ten promedio de 4.5 o más con al menos 3 notas.',notasUsuario.length >= 3 && promedio >= 4.5],
+				['🗓️ Siempre presente','Alcanza 90% o más de asistencia con al menos 5 registros.',registros.length >= 5 && asistenciaPct >= 90],
+				['📎 Manos a la obra','Sube tu primera evidencia.',evidenciasUsuario.length >= 1],
+				['🏅 Trabajo destacado','Consigue 3 evidencias aprobadas.',aprobadas >= 3]
+			];
+		}
+
+		function asistenteIrA(panel) {
+			if (!panel) return;
+			const usuario = usuarioSesion();
+			try {
+				if (usuario?.rol === 'estudiante') mostrarPanel(panel);
+				else if (usuario?.rol === 'profesor') mostrarPanelProfesor(panel);
+				else if (esRolAdministrativo(usuario?.rol)) mostrarPanelAdmin(panel);
+				actualizarNavegacionSuperior(panel);
+			} catch (_) {}
+		}
+
+		function buscarEnClassPoint(consulta) {
+			const original = String(consulta || '').trim();
+			const q = normalizarTexto(original);
+			const usuario = usuarioSesion();
+			if (!q || !usuario) return {texto:'Escribe algo para buscar.', resultados:[]};
+
+			// Atajos semánticos para que "mis tareas", "mis insignias", etc. funcionen.
+			if (/\b(mis|misas)\s+tareas?\b/.test(q) || /\btareas?\s+(pendientes?|por hacer)\b/.test(q)) {
+				const lista = tareas.filter(t => t.usuario === usuario.usuario && perteneceInstitucion(t));
+				return {texto: lista.length ? `Tienes ${lista.length} tarea(s):\n${lista.slice(0,6).map(t => `• ${t.titulo} — ${t.fecha} — ${t.estado}`).join('\n')}` : 'No tienes tareas registradas.', resultados: lista.slice(0,6).map(t=>({tipo:'Tarea',titulo:t.titulo,detalle:`Entrega: ${t.fecha}`,panel:'tareasPanel'}))};
+			}
+			if (/\b(mis|misas)\s+insignias?\b/.test(q) || q.includes('que insignias') || q.includes('qué insignias')) {
+				const ins = obtenerInsigniasAsistente(usuario);
+				const siguientes = ins.filter(i=>!i[2]);
+				return {texto:`Tienes ${ins.filter(i=>i[2]).length} de ${ins.length} insignias desbloqueadas.\n${siguientes.length ? 'Siguientes:\n'+siguientes.slice(0,4).map(i=>`• ${i[0]} — ${i[1]}`).join('\n') : '¡Ya desbloqueaste todas!'}`,resultados:[]};
+			}
+			if (/\b(mis|mi)\s+(aulas?|clases?)\b/.test(q)) {
+				const lista = aulas.filter(a => perteneceInstitucion(a) && (usuario.rol !== 'estudiante' || a.estudiantes.includes(usuario.usuario)));
+				return {texto:lista.length ? `Encontré ${lista.length} aula(s):\n${lista.slice(0,6).map(a=>`• ${a.nombre} — ${a.horario} — ${a.codigo}`).join('\n')}` : 'No encontré aulas asociadas.',resultados:lista.slice(0,6).map(a=>({tipo:'Aula',titulo:a.nombre,detalle:`${a.horario} · ${a.codigo}`,panel:'aulasPanel'}))};
+			}
+
+			const resultados = [];
+			const agregar = (tipo,titulo,detalle,panel) => resultados.push({tipo,titulo,detalle,panel});
+
+			tareas.filter(t => perteneceInstitucion(t) && (usuario.rol !== 'estudiante' || t.usuario === usuario.usuario)).forEach(t => {
+				if (normalizarTexto(`${t.titulo} ${t.descripcion} ${t.fecha} ${t.estado}`).includes(q))
+					agregar('Tarea',t.titulo,`${t.descripcion} · ${t.fecha} · ${t.estado}`,'tareasPanel');
+			});
+			materias.filter(m=>perteneceInstitucion(m)).forEach(m=>{
+				if(normalizarTexto(`${m.nombre} ${m.profesor}`).includes(q))
+					agregar('Materia',m.nombre,`Profesor: ${usuarios.find(u=>u.usuario===m.profesor)?.nombre || m.profesor}`,'materiasPanel');
+			});
+			aulas.filter(a=>perteneceInstitucion(a)).forEach(a=>{
+				if(normalizarTexto(`${a.nombre} ${a.horario} ${a.codigo}`).includes(q))
+					agregar('Aula',a.nombre,`${a.horario} · Código: ${a.codigo}`,'aulasPanel');
+			});
+			usuariosVisibles().filter(u=>u.rol==='estudiante'||u.rol==='profesor').forEach(u=>{
+				if(normalizarTexto(`${u.nombre} ${u.usuario}`).includes(q))
+					agregar(u.rol==='estudiante'?'Estudiante':'Profesor',u.nombre,`Usuario: ${u.usuario}`,u.rol==='estudiante'?'profesorInicio':'profesorInicio');
+			});
+			if(usuario.rol==='estudiante') calificaciones.filter(n=>n.usuario===usuario.usuario&&perteneceInstitucion(n)).forEach(n=>{
+				if(normalizarTexto(`${n.materia} ${n.nota}`).includes(q)) agregar('Calificación',n.materia,`Nota: ${n.nota}`,'materiasPanel');
+			});
+
+			const unique = [...new Map(resultados.map(r=>[`${r.tipo}-${r.titulo}-${r.detalle}`,r])).values()];
+			if(!unique.length) return {texto:`No encontré resultados para "${original}". Prueba con el nombre de una tarea, materia, aula, persona o código.`,resultados:[]};
+			return {texto:`Encontré ${unique.length} resultado(s) para "${original}".`,resultados:unique.slice(0,6)};
+		}
+
+		function responderAsistente(pregunta) {
+			const texto = normalizarTexto(pregunta);
+			const usuario = usuarioSesion();
+			if (!usuario) return {texto:'Primero inicia sesión para que pueda darte información personalizada.',resultados:[]};
+
+			if (/^(hola|holi|hey|buenas|buenos dias|buenas tardes|buenas noches)\b/.test(texto))
+				return {texto:`¡Hola, ${usuario.nombre}! 👋 Soy el Asistente ClassPoint. ¿Qué necesitas consultar?`,resultados:[]};
+
+			const esBusqueda = /buscar|busca|encuentra|encontrar|donde esta|dónde está|muéstrame|mostrar|localiza|localizar/.test(texto);
+			if(esBusqueda){
+				const consulta=texto.replace(/buscar|busca|encuentra|encontrar|donde esta|dónde está|muéstrame|mostrar|localiza|localizar/g,'').trim();
+				return consulta ? buscarEnClassPoint(consulta) : {texto:'Escribe qué quieres buscar. Ejemplo: "buscar ensayo de ciencias".',resultados:[]};
+			}
+
+			if(texto.includes('insignia')||texto.includes('logro')) {
+				if(usuario.rol!=='estudiante') return {texto:'Las insignias reconocen principalmente el progreso de los estudiantes.',resultados:[]};
+				const ins=obtenerInsigniasAsistente(usuario), ok=ins.filter(i=>i[2]).length, next=ins.filter(i=>!i[2]).slice(0,4);
+				return {texto:`Tienes ${ok} de ${ins.length} insignias desbloqueadas.${next.length?'\n\nPuedes conseguir:\n'+next.map(i=>`• ${i[0]} — ${i[1]}`).join('\n'):'\n\n¡Ya desbloqueaste todas!'}`,resultados:[]};
+			}
+
+			if(texto.includes('promedio')||texto.includes('nota')||texto.includes('calificacion')||texto.includes('calificación')){
+				if(usuario.rol==='estudiante'){
+					const notas=calificaciones.filter(n=>n.usuario===usuario.usuario&&perteneceInstitucion(n));
+					if(!notas.length)return {texto:'Todavía no tienes calificaciones registradas.',resultados:[]};
+					const promedio=(notas.reduce((s,n)=>s+Number(n.nota||0),0)/notas.length).toFixed(2);
+					return {texto:`Tu promedio actual es ${promedio}. Tienes ${notas.length} calificación(es) registrada(s).`,resultados:[]};
+				}
+				return {texto:usuario.rol==='profesor'?'Puedes gestionar las calificaciones desde tu panel de profesor.':'Puedes consultar la información académica desde los paneles administrativos.',resultados:[]};
+			}
+
+			if(texto.includes('tarea')||texto.includes('pendiente')) return buscarEnClassPoint('mis tareas');
+			if(texto.includes('coin')||texto.includes('moneda')||texto.includes('mercado')||texto.includes('compr')) return {texto:usuario.rol==='profesor'?'En ClassCoins puedes seleccionar un estudiante, una materia y entregar monedas.':'En Mercado puedes consultar las recompensas disponibles y tus ClassCoins.',resultados:[]};
+			if(texto.includes('aula')||texto.includes('codigo')||texto.includes('código')) return buscarEnClassPoint('mis aulas');
+			if(texto.includes('asistencia')||texto.includes('presente')||texto.includes('falta')) return {texto:'Puedes consultar o registrar la asistencia desde el panel correspondiente. Los registros se organizan por periodo.',resultados:[]};
+			if(texto.includes('periodo')||texto.includes('cuaderno')||texto.includes('ponderad')) return {texto:'Las calificaciones se organizan por periodos. El cuaderno de evaluación permite registrar actividades, porcentajes y promedios ponderados.',resultados:[]};
+			if(texto.includes('respaldo')||texto.includes('copia de seguridad')||texto.includes('exportar datos')) return {texto:'Puedes exportar tus datos para guardar una copia y restaurarlos mediante la importación. Usa archivos confiables.',resultados:[]};
+			if(texto.includes('perfil')||texto.includes('foto')) return {texto:'En Perfil puedes actualizar tu información, foto y contraseña.',resultados:[]};
+			if(texto.includes('ayuda')||texto.includes('que puedes')||texto.includes('qué puedes'))
+				return {texto:'Puedo ayudarte con:\n• Buscar tareas, materias, aulas y personas.\n• Consultar tu promedio y tareas.\n• Revisar insignias, asistencia y ClassCoins.\n• Consultar periodos, cuaderno de evaluación y respaldos.\n• Llevarte directamente a una sección de ClassPoint.',resultados:[]};
+
+			return {texto:'No estoy seguro de lo que necesitas. Prueba "¿cuál es mi promedio?", "mis tareas", "mis insignias" o "buscar aula 101".',resultados:[]};
+		}
+
+		function agregarMensajeAsistente(texto, esUsuario=false, resultados=[]) {
+			const mensajes=$('aiAssistantMessages');
+			const mensaje=document.createElement('div');
+			mensaje.className=`ai-message${esUsuario?' user':''}`;
+			mensaje.textContent=texto;
+			mensajes.appendChild(mensaje);
+			if(!esUsuario && resultados.length){
+				resultados.forEach(r=>{
+					const box=document.createElement('div'); box.className='ai-result-actions';
+					const b=document.createElement('button'); b.type='button'; b.className='secondary'; b.textContent=`Abrir ${r.tipo}`;
+					b.onclick=()=>asistenteIrA(r.panel);
+					box.appendChild(b); mensaje.appendChild(box);
+				});
+			}
+			mensajes.scrollTop=mensajes.scrollHeight;
+		}
+
+		$('aiAssistantToggle').addEventListener('click',()=> $('aiAssistantBody').classList.toggle('hidden'));
+		document.querySelectorAll('.assistant-suggestion').forEach(boton=>boton.addEventListener('click',()=>{
+			const pregunta=boton.dataset.question||''; $('aiAssistantInput').value=pregunta; $('aiAssistantInput').focus();
+		}));
+		$('aiAssistantForm').addEventListener('submit',e=>{
+			e.preventDefault();
+			const entrada=$('aiAssistantInput'), pregunta=entrada.value.trim();
+			if(!pregunta)return;
+			agregarMensajeAsistente(pregunta,true);
+			const respuesta=responderAsistente(pregunta);
+			agregarMensajeAsistente(respuesta.texto,false,respuesta.resultados||[]);
+			entrada.value='';
+		});
+
+			function generarCodigoAula() { return `CP-${Math.random().toString(36).slice(2, 6).toUpperCase()}-${Math.floor(Math.random() * 90 + 10)}`; }
+				function usuarioSesion() { return usuarios.find(u => u.usuario === sessionStorage.getItem('usuario')); }
+				function esCreadorOriginal() { return usuarioSesion()?.rol === 'creadorOriginal'; }
+				function institucionSesion() { return usuarioSesion()?.institucion || institucionPrincipal; }
+				function administradoresInstitucion(nombre) { return usuarios.filter(usuario => usuario.rol === 'administrador' && normalizarTexto(usuario.institucion) === normalizarTexto(nombre)); }
+				function institucionValida(nombre) { return Boolean(String(nombre || '').trim()); }
+				function perteneceInstitucion(item) { return esCreadorOriginal() || item.institucion === institucionSesion(); }
+				function usuariosVisibles() { return usuarios.filter(usuario => perteneceInstitucion(usuario)); }
+				function esRolAdministrativo(rol) { return rol === 'administrador' || rol === 'creadorOriginal'; }
+				function avatarHTML(usuario, clase = 'avatar') { const foto = fotosPerfil[usuario.usuario]; return foto ? `<img class="${clase}" src="${foto}" alt="Foto de ${usuario.nombre}">` : `<span class="${clase} avatar-placeholder">${normalizarTexto(usuario.nombre).charAt(0).toUpperCase() || '?'}</span>`; }
+				function limpiarNotificacionesExpiradas() {
+                    const limite = Date.now() - 24 * 60 * 60 * 1000;
+                    anuncios = anuncios.filter(anuncio => !anuncio.timestamp || Number(anuncio.timestamp) >= limite);
+                    const chismes = JSON.parse(localStorage.getItem('chismografo') || '[]').filter(item => !item.fecha || Number(item.fecha) >= limite);
+                    localStorage.setItem('anuncios', JSON.stringify(anuncios));
+                    localStorage.setItem('chismografo', JSON.stringify(chismes));
+                }
+                function anunciosVisibles() { const usuario = usuarioSesion(); return anuncios.filter(anuncio => { if (!esCreadorOriginal() && anuncio.institucion !== institucionSesion()) return false; if (usuario?.rol === 'estudiante') return anuncio.aulaId && aulas.some(aula => aula.id === anuncio.aulaId && aula.estudiantes.includes(usuario.usuario)); return true; }); }
+				function puedeEliminarAnuncio(anuncio) { const usuario = usuarioSesion(); return Boolean(usuario && (esCreadorOriginal() || usuario.rol === 'administrador' || anuncio.autorUsuario === usuario.usuario)); }
+				function renderAnuncios(elemento, limite = 0) { const lista = anunciosVisibles().slice().reverse(); const visibles = limite ? lista.slice(0, limite) : lista; $(elemento).innerHTML = visibles.length ? visibles.map(anuncio => `<article class="list-item"><strong>${anuncio.titulo}</strong><small>${anuncio.autor || 'ClassPoint'} · Fecha: ${anuncio.fecha || 'Sin fecha'}</small><p>${anuncio.texto}</p>${puedeEliminarAnuncio(anuncio) ? `<button type="button" class="secondary eliminar-anuncio" data-id="${anuncio.id}">Eliminar</button>` : ''}</article>`).join('') : '<p>No hay anuncios nuevos.</p>'; document.querySelectorAll('.eliminar-anuncio').forEach(boton => boton.onclick = () => eliminarAnuncio(boton.dataset.id)); }
+				function actualizarNotificaciones() { limpiarNotificacionesExpiradas(); const total = anunciosVisibles().length; document.querySelectorAll('.notification-count').forEach(contador => contador.textContent = total > 99 ? '99+' : total); }
+				function eliminarAnuncio(id) { const anuncio = anuncios.find(item => item.id === id); if (!anuncio || !puedeEliminarAnuncio(anuncio) || !confirm('¿Eliminar este anuncio?')) return; anuncios = anuncios.filter(item => item.id !== id); localStorage.setItem('anuncios', JSON.stringify(anuncios)); const rol = usuarioSesion()?.rol; renderAnuncios(rol === 'estudiante' ? 'inicioAnunciosEstudiante' : rol === 'profesor' ? 'inicioAnunciosProfesor' : 'inicioAnunciosAdmin', 3); renderAnuncios(rol === 'estudiante' ? 'listaNotificacionesEstudiante' : rol === 'profesor' ? 'listaNotificacionesProfesor' : 'listaNotificacionesAdmin'); actualizarNotificaciones(); }
+				function perfilUsuario(usuario) { return perfiles[usuario.usuario] || { tardes:'', intereses:'', descripcion:'' }; }
+				function cargarDatosPerfil(usuario, ids) { const perfil = perfilUsuario(usuario); $(ids.tardes).value = perfil.tardes; $(ids.intereses).value = perfil.intereses; $(ids.descripcion).value = perfil.descripcion; }
+				function guardarDatosPerfil(usuario, ids, mensaje) { const tardes = $(ids.tardes).value.trim(); const intereses = $(ids.intereses).value.trim(); const descripcion = $(ids.descripcion).value.trim(); if (!tardes || !intereses || !descripcion) return $(mensaje).textContent = 'Completa todos los datos del perfil.'; perfiles[usuario.usuario] = { tardes, intereses, descripcion }; localStorage.setItem('perfiles', JSON.stringify(perfiles)); $(mensaje).textContent = 'Información del perfil guardada.'; renderPersonasAdmin(); }
+				function resumenPerfil(usuario) { const perfil = perfilUsuario(usuario); return perfil.tardes ? `<small>Por las tardes: ${perfil.tardes}</small>` : ''; }
+				function renderAvatarPerfil(elemento, usuario) { if ($(elemento)) $(elemento).innerHTML = avatarHTML(usuario, 'avatar profile-avatar'); }
+				function guardarFotoPerfil(usuario, archivo, mensajeId) { if (!archivo || !archivo.type.startsWith('image/')) return $(mensajeId).textContent = 'Selecciona una imagen válida.'; if (archivo.size > 2 * 1024 * 1024) return $(mensajeId).textContent = 'La imagen no puede superar 2 MB.'; const lector = new FileReader(); lector.onload = () => { fotosPerfil[usuario.usuario] = lector.result; localStorage.setItem('fotosPerfil', JSON.stringify(fotosPerfil)); $(mensajeId).textContent = 'Foto de perfil guardada.'; actualizarNavegacionSuperior(''); renderAvatarPerfil(usuario.rol === 'estudiante' ? 'perfilAvatarEstudiante' : usuario.rol === 'profesor' ? 'perfilAvatarProfesor' : 'perfilAvatarAdmin', usuario); renderPersonasAdmin(); }; lector.readAsDataURL(archivo); }
+			function guardarTareas(){ localStorage.setItem('tareas', JSON.stringify(tareas)); }
+			function guardarEvidencias(){ localStorage.setItem('evidencias', JSON.stringify(evidencias)); }
+			function guardarLogros(){ localStorage.setItem('logros', JSON.stringify(logros)); }
+			function guardarAsistencia(){ localStorage.setItem('asistencia', JSON.stringify(asistencia)); }
+			function guardarAulas(){ localStorage.setItem('aulas', JSON.stringify(aulas)); }
+			function esAdministrador() { return esRolAdministrativo(usuarioSesion()?.rol); }
+			function puedeGestionar(item) { return esAdministrador() || item.profesor === sessionStorage.getItem('usuario'); }
+			function actualizarNavegacionSuperior(panelActual) {
+				const topNav = $('topAppNav');
+				if (!topNav) return;
+				const usuario = usuarios.find(item => item.usuario === sessionStorage.getItem('usuario'));
+				topNav.classList.toggle('hidden', !usuario);
+				$('aiAssistant').classList.toggle('hidden', !usuario);
+				$('topUserActions').classList.toggle('hidden', !usuario);
+				$('topWelcome').textContent = usuario ? `Bienvenido/a, ${usuario.nombre}` : '';
+				$('topAvatar').innerHTML = usuario ? avatarHTML(usuario) : '';
+				actualizarNotificaciones();
+				document.querySelectorAll('.top-role-nav').forEach(nav => nav.classList.add('hidden'));
+				if (!usuario) return;
+				const navId = esRolAdministrativo(usuario.rol) ? 'topAdminNav' : usuario.rol === 'profesor' ? 'topTeacherNav' : 'topStudentNav';
+				$(navId).classList.remove('hidden');
+				$('topInstituciones').classList.toggle('hidden', usuario.rol !== 'creadorOriginal');
+				document.querySelectorAll('.top-app-nav [data-top-panel]').forEach(boton => boton.classList.toggle('activo', boton.dataset.topPanel === panelActual));
+			}
+			function renderMateriasProfesor() {
+				const propias = materias.filter(materia => materia.profesor === sessionStorage.getItem('usuario'));
+				$('listaMateriasProfesor').innerHTML = propias.length ? propias.map(materia => `<div class="list-item"><strong>${materia.nombre}</strong><small>Materia creada por ti</small><br><button type="button" class="editar-materia" data-id="${materia.id}">Modificar</button><button type="button" class="secondary eliminar-materia" data-id="${materia.id}">Eliminar</button></div>`).join('') : '<p>Aún no has creado materias.</p>';
+			}
+			function renderAulasProfesor() {
+				const usuario = sessionStorage.getItem('usuario');
+				const propias = aulas.filter(aula => aula.profesor === usuario);
+			$('listaAulasProfesor').innerHTML = propias.length ? propias.map(aula => { const materiasAula = materias.filter(materia => materia.aulaId === aula.id && perteneceInstitucion(materia)); const nombresMaterias = materiasAula.length ? materiasAula.map(materia => materia.nombre).join(' · ') : 'Sin materias asignadas'; return `<div class="list-item"><strong>${aula.nombre}</strong><small>${aula.horario}</small><small><strong>Materias:</strong> ${nombresMaterias}</small><br><span class="status-badge">Código: ${aula.codigo}</span><br><button type="button" class="editar-aula" data-id="${aula.id}">Modificar</button><button type="button" class="secondary eliminar-aula" data-id="${aula.id}">Eliminar</button></div>`; }).join('') : '<p>Aún no has creado aulas.</p>';
+			}
+			function renderAulasEstudiante(usuario) {
+				const inscritas = aulas.filter(aula => aula.estudiantes.includes(usuario.usuario) && perteneceInstitucion(aula));
+				$('listaAulasEstudiante').innerHTML = inscritas.length ? inscritas.map(aula => { const materiasAula = materias.filter(materia => materia.aulaId === aula.id && perteneceInstitucion(materia)); const nombresMaterias = materiasAula.length ? materiasAula.map(materia => materia.nombre).join(' · ') : 'Sin materias asignadas'; return `<button type="button" class="aula-selector" data-aula-id="${aula.id}"><strong>${aula.nombre}</strong><small>${aula.horario}</small><span class="status-badge">Profesor: ${usuarios.find(item => item.usuario === aula.profesor)?.nombre || aula.profesor}</span><small><strong>Materias:</strong> ${nombresMaterias}</small></button>`; }).join('') : '<p>Aún no perteneces a ninguna aula.</p>';
+				document.querySelectorAll('.aula-selector').forEach(boton => boton.addEventListener('click', () => { const aula = aulas.find(item => item.id === boton.dataset.aulaId); if (!aula) return; mostrarCalificacionesAula(aula, usuario); document.querySelectorAll('.aula-selector').forEach(item => item.classList.toggle('activo', item === boton)); }));
+				if (inscritas.length) document.querySelector('.aula-selector').click();
+			}
+			function mostrarCalificacionesAula(aula, usuarioActual) {
+				const estudiantesAula = usuarios.filter(usuario => aula.estudiantes.includes(usuario.usuario) && perteneceInstitucion(usuario));
+				const notasAula = calificaciones.filter(nota => aula.estudiantes.includes(nota.usuario) && perteneceInstitucion(nota));
+				const materiasAula = materias.filter(materia => materia.aulaId === aula.id && perteneceInstitucion(materia));
+				const esEstudiante = usuarioActual.rol === 'estudiante';
+				$('calificacionesAula').innerHTML = `<h3>Materias de ${aula.nombre}</h3>${materiasAula.length ? materiasAula.map(materia => { const notasMateria = notasAula.filter(nota => nota.materia === materia.nombre && (!esEstudiante || nota.usuario === usuarioActual.usuario)); return `<div class="list-item"><strong>${materia.nombre}</strong>${notasMateria.length ? `<table><thead><tr><th>Estudiante</th><th>Periodo</th><th>Actividad</th><th>Porcentaje</th><th>Calificación</th></tr></thead><tbody>${notasMateria.slice().sort((a,b)=>String(a.nombre||'').localeCompare(String(b.nombre||''),'es',{sensitivity:'base'})).map(nota => `<tr><td>${esEstudiante ? 'Mi calificación' : nota.nombre}</td><td>Periodo ${nota.periodo || '1'}</td><td>${nota.tipo || 'Sin especificar'}</td><td>${nota.porcentaje ? nota.porcentaje + '%' : '—'}</td><td class="nota">${Number(nota.nota).toFixed(1)}</td></tr>`).join('')}</tbody></table>` : '<p>Aún no hay calificaciones para esta materia.</p>'}</div>`; }).join('') : '<p>Este aula todavía no tiene materias asignadas.</p>'}`;
+			}
+			function renderMateriasAdmin() {
+				$('listaMateriasAdmin').innerHTML = materias.filter(perteneceInstitucion).length ? materias.filter(perteneceInstitucion).map(materia => `<div class="list-item"><strong>${materia.nombre}</strong><small>Profesor: ${usuarios.find(u => u.usuario === materia.profesor)?.nombre || materia.profesor}</small><br><button type="button" class="editar-materia" data-id="${materia.id}">Modificar</button><button type="button" class="secondary eliminar-materia" data-id="${materia.id}">Eliminar</button></div>`).join('') : '<p>No hay materias registradas.</p>';
+			}
+		function mostrar(id) {
+			mostrarHerramientasRapidas(id !== 'login');
+			const enApp = id !== 'login';
+			const header = document.querySelector('.site-header');
+			const main = document.querySelector('main');
+			const featureGrid = document.querySelector('.feature-grid');
+			const story = document.querySelector('.story');
+			const mission = document.querySelector('.mission');
+			const appShell = document.querySelector('.app-shell');
+			if (header) header.classList.toggle('hidden', false);
+			if (header) header.classList.toggle('app-header', enApp);
+			if (main) main.classList.toggle('hidden', false);
+			if (featureGrid) featureGrid.classList.toggle('hidden', !enApp);
+			if (story) story.classList.toggle('hidden', !enApp);
+			if (mission) mission.classList.toggle('hidden', !enApp);
+			if (appShell) appShell.classList.toggle('hidden', !enApp);
+			actualizarNavegacionSuperior(id === 'login' ? 'login' : id);
+			['login','estudiante','profesor','administrador'].forEach(x => $(x).classList.toggle('hidden', x !== id));
+		}
+		setInterval(actualizarPresencia, 30000);
+		function inicializarVista() {
+			const usuarioActual = sessionStorage.getItem('usuario');
+			if (usuarioActual) {
+				const usuario = usuarios.find(u => u.usuario === usuarioActual);
+				if (!usuario) {
+					sessionStorage.removeItem('usuario');
+					mostrar('login');
+					return;
+				}
+				esRolAdministrativo(usuario.rol) ? (renderAdministrador(), mostrar('administrador')) : usuario.rol === 'profesor' ? (renderProfesor(), mostrar('profesor')) : (renderEstudiante(usuario), mostrar('estudiante'));
+			} else {
+				mostrar('login');
+			}
+		}
+		function guardarEconomia() { localStorage.setItem('monedas', JSON.stringify(monedas)); localStorage.setItem('compras', JSON.stringify(compras)); }
+		function guardarProductos() { localStorage.setItem('productos', JSON.stringify(productos)); }
+		function guardarMaterias() { localStorage.setItem('materias', JSON.stringify(materias)); }
+		function guardarSesiones() { localStorage.setItem('sesiones', JSON.stringify(sesiones)); }
+		async function actualizarPresencia() {
+			const usuario = usuarioSesion();
+			if (!usuario) return;
+			const payload = { usuario: usuario.usuario, nombre: usuario.nombre, rol: usuario.rol, institucion: usuario.institucion };
+			try {
+				await fetch('/api/presence', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+				if (usuario.rol === 'creadorOriginal') {
+					const respuesta = await fetch('/api/presence', { cache: 'no-store' });
+					const datos = await respuesta.json();
+					if ($('personasEnLineaAdmin')) $('personasEnLineaAdmin').textContent = datos.total || 0;
+					if ($('listaPersonasEnLineaAdmin')) $('listaPersonasEnLineaAdmin').innerHTML = datos.personas?.length ? datos.personas.map(item => `<div class="list-item"><strong>${escapeHtml(item.nombre || item.usuario)}</strong><small>${escapeHtml(item.rol || '')} · ${escapeHtml(item.institucion || 'Sin institución')}</small></div>`).join('') : '<p>No hay personas en línea.</p>';
+				}
+			} catch (error) {
+				console.warn('Servidor de presencia no disponible:', error);
+			}
+		}
+
+		function renderCentroControlAdmin() {
+			const admin = usuarioSesion();
+			if (!admin) return;
+			const propias = usuariosVisibles();
+			const materiasInstitucion = materias.filter(perteneceInstitucion);
+			const sinAula = materiasInstitucion.filter(m => !m.aulaId).length;
+			const config = obtenerConfigPeriodos(admin.institucion || institucionPrincipal);
+			if ($('statCalificaciones')) $('statCalificaciones').textContent = calificaciones.filter(perteneceInstitucion).length;
+			if ($('statAsistenciaRegistros')) $('statAsistenciaRegistros').textContent = asistencia.filter(perteneceInstitucion).length;
+			if ($('statMateriasSinAula')) $('statMateriasSinAula').textContent = sinAula;
+			if ($('statPeriodosConfigurados')) $('statPeriodosConfigurados').textContent = `${config.cantidad}/4`;
+			const alertas = [];
+			if (!aulas.filter(perteneceInstitucion).length) alertas.push('No hay aulas creadas todavía.');
+			if (sinAula) alertas.push(`${sinAula} materia(s) todavía no tienen un aula asignada.`);
+			if (propias.filter(u => u.rol === 'profesor').length === 0) alertas.push('Añade al menos un profesor para comenzar a organizar las clases.');
+			const caja = $('alertasAdmin');
+			if (caja) caja.innerHTML = alertas.length ? '<strong>Revisar</strong>' + alertas.map(a => `<div class="list-item">⚠️ ${escapeHtml(a)}</div>`).join('') : '<div class="list-item">✅ No hay alertas pendientes. La institución está organizada.</div>';
+		}
+
+		function exportarRespaldoDatos() {
+			const claves = ['usuarios','aulas','materias','calificaciones','asistencia','tareas','anuncios','evidencias','logros','monedas','compras','productos','instituciones','institucionesUsuarios','configuracionesPeriodos','chismografo','perfiles','fotosPerfil','estudiantesExtra','profesoresExtra','administradoresExtra','estudiantesEliminados'];
+			const respaldo = { version: 1, fecha: new Date().toISOString(), datos: {} };
+			claves.forEach(clave => { const valor = localStorage.getItem(clave); if (valor !== null) respaldo.datos[clave] = valor; });
+			const blob = new Blob([JSON.stringify(respaldo, null, 2)], { type: 'application/json' });
+			const enlace = document.createElement('a'); enlace.href = URL.createObjectURL(blob); enlace.download = `classpoint-respaldo-${new Date().toISOString().slice(0,10)}.json`; enlace.click(); URL.revokeObjectURL(enlace.href);
+			if ($('respaldoMensaje')) $('respaldoMensaje').textContent = 'Respaldo preparado. Guárdalo en un lugar seguro.';
+		}
+		function importarRespaldoDatos(archivo) {
+			if (!archivo) return;
+			const lector = new FileReader();
+			lector.onload = () => {
+				try { const respaldo = JSON.parse(lector.result); if (!respaldo || respaldo.version !== 1 || !respaldo.datos) throw new Error('Formato inválido'); if (!confirm('Esto reemplazará los datos guardados en este navegador. ¿Continuar?')) return; Object.entries(respaldo.datos).forEach(([clave, valor]) => localStorage.setItem(clave, valor)); if ($('respaldoMensaje')) $('respaldoMensaje').textContent = 'Respaldo restaurado. Recargando la plataforma...'; setTimeout(() => location.reload(), 500); } catch (error) { if ($('respaldoMensaje')) $('respaldoMensaje').textContent = 'No se pudo importar el respaldo. Verifica el archivo.'; }
+			};
+			lector.readAsText(archivo);
+		}
+
+		function renderResumenAdmin() {
+			renderAnuncios('inicioAnunciosAdmin', 3); renderAnuncios('listaNotificacionesAdmin');
+			if ($('nuevoUsuarioInstitucion')) $('nuevoUsuarioInstitucion').innerHTML = (esCreadorOriginal() ? instituciones : instituciones.filter(item => normalizarTexto(item.nombre) === normalizarTexto(institucionSesion()))).map(item => `<option value="${item.nombre}">${item.nombre}</option>`).join('');
+			$('statEstudiantes').textContent = usuariosVisibles().filter(u => u.rol === 'estudiante').length;
+			$('statProfesores').textContent = usuariosVisibles().filter(u => u.rol === 'profesor').length;
+			$('statMaterias').textContent = materias.filter(perteneceInstitucion).length;
+				$('statAulas').textContent = aulas.filter(perteneceInstitucion).length;
+				if ($('aulaProfesor')) {
+					$('aulaProfesor').innerHTML = usuariosVisibles().filter(u => u.rol === 'profesor' || esRolAdministrativo(u.rol)).map(u => `<option value="${u.usuario}">${u.nombre}</option>`).join('');
+				}
+		}
+			function calcularAsistencia(usuario) {
+				const registros = asistencia.filter(item => item.usuario === usuario);
+				if (!registros.length) return 0;
+				const presentes = registros.filter(item => item.estado === 'Presente').length;
+				return Math.round((presentes / registros.length) * 100);
+			}
+			function renderCalendarioTareasEstudiante(usuario) {
+				const lista = tareas.filter(t => t.usuario === usuario.usuario).sort((a,b) => String(a.fecha || '').localeCompare(String(b.fecha || '')));
+				const contenedor = $('calendarioTareasEstudiante');
+				if (!contenedor) return;
+				if (!lista.length) { contenedor.innerHTML = '<p>No tienes tareas programadas.</p>'; return; }
+				const fechaTexto = fecha => { if (!fecha) return 'Sin fecha límite'; const partes = fecha.split('-'); return partes.length === 3 ? `${partes[2]}/${partes[1]}/${partes[0]}` : fecha; };
+				contenedor.innerHTML = lista.map(tarea => `<div class="list-item"><strong>📌 ${tarea.titulo}</strong><small>Fecha límite: <b>${fechaTexto(tarea.fecha)}</b></small><p>${tarea.descripcion}</p><span class="pill ${tarea.estado === 'pendiente' ? 'warn' : ''}">${tarea.estado === 'pendiente' ? 'Pendiente' : 'Entregada'}</span></div>`).join('');
+			}
+			function renderTareasEstudiante(usuario) {
+				const lista = tareas.filter(t => t.usuario === usuario.usuario);
+				$('listaTareasEstudiante').innerHTML = lista.length ? lista.map(tarea => `
+					<div class="list-item">
+						<strong>${tarea.titulo}</strong>
+						<small>${tarea.descripcion}</small><br>
+						<span class="pill ${tarea.estado === 'pendiente' ? 'warn' : ''}">${tarea.estado === 'pendiente' ? 'Pendiente' : 'Completada'}</span>
+						<button type="button" class="marcar-tarea" data-id="${tarea.id}">${tarea.estado === 'pendiente' ? 'Marcar como entregada' : 'Reabrir'}</button>
+					</div>
+				`).join('') : '<p>No tienes tareas pendientes por ahora.</p>';
+				const totalLogros = logros.filter(item => item.usuario === usuario.usuario).length;
+				$('statLogros').textContent = totalLogros;
+				$('statAsistencia').textContent = `${calcularAsistencia(usuario.usuario)}%`;
+				document.querySelectorAll('.marcar-tarea').forEach(boton => {
+					boton.addEventListener('click', () => {
+						const tarea = tareas.find(item => item.id === boton.dataset.id);
+						if (!tarea) return;
+						tarea.estado = tarea.estado === 'pendiente' ? 'completada' : 'pendiente';
+						guardarTareas();
+						if (tarea.estado === 'completada') {
+							const yaExiste = logros.some(item => item.usuario === usuario.usuario && item.titulo === 'Entrega realizada');
+							if (!yaExiste) {
+								logros.push({ id: `logro-${Date.now()}`, usuario: usuario.usuario, titulo: 'Entrega realizada', detalle: `Completaste ${tarea.titulo}` });
+								guardarLogros();
+							}
+						}
+						renderEstudiante(usuario);
+					});
+				});
+			}
+			function renderEvidenciasEstudiante(usuario) {
+				const propias = evidencias.filter(item => item.usuario === usuario.usuario);
+				$('evidenciaTarea').innerHTML = tareas.filter(item => item.usuario === usuario.usuario).map(item => `<option value="${item.id}">${item.titulo}</option>`).join('');
+				$('listaEvidenciasEstudiante').innerHTML = propias.length ? propias.map(item => `<div class="list-item"><strong>${item.titulo}</strong><small>${item.archivoNombre}</small><br><span class="pill ${item.estado === 'pendiente' ? 'warn' : ''}">${item.estado === 'pendiente' ? 'Pendiente de revisión' : item.estado}</span>${item.enlace ? `<p><a href="${item.enlace}" target="_blank" rel="noopener">Abrir enlace</a></p>` : ''}${item.archivoData ? `<p><a href="${item.archivoData}" download="${item.archivoNombre}">Descargar archivo</a></p>` : ''}</div>`).join('') : '<p>Aún no has subido evidencias.</p>';
+			}
+			function renderEvidenciasProfesor() {
+				const evidenciasVisibles = evidencias.filter(perteneceInstitucion); $('listaEvidenciasProfesor').innerHTML = evidenciasVisibles.length ? evidenciasVisibles.map(item => `<div class="list-item"><strong>${item.titulo}</strong><small>${usuarios.find(u => u.usuario === item.usuario)?.nombre || item.usuario} · ${item.archivoNombre}</small>${item.enlace ? `<p><a href="${item.enlace}" target="_blank" rel="noopener">Abrir enlace externo</a></p>` : ''}${item.archivoData ? `<p><a href="${item.archivoData}" download="${item.archivoNombre}">Descargar evidencia</a></p>` : ''}<span class="pill ${item.estado === 'pendiente' ? 'warn' : ''}">${item.estado}</span><br><button type="button" class="revisar-evidencia" data-id="${item.id}" data-estado="Aprobada">Aprobar</button><button type="button" class="secondary revisar-evidencia" data-id="${item.id}" data-estado="Solicita cambios">Solicitar cambios</button></div>`).join('') : '<p>No hay evidencias enviadas.</p>';
+				document.querySelectorAll('.revisar-evidencia').forEach(boton => boton.addEventListener('click', () => {
+					const evidencia = evidencias.find(item => item.id === boton.dataset.id);
+					if (!evidencia) return;
+					evidencia.estado = boton.dataset.estado;
+					guardarEvidencias();
+					renderEvidenciasProfesor();
+				}));
+			}
+			function renderLogrosEstudiante(usuario) {
+				const usuarioId = usuario.usuario;
+				const tareasUsuario = tareas.filter(item => item.usuario === usuarioId);
+				const tareasCompletadas = tareasUsuario.filter(item => item.estado === 'completada').length;
+				const notasUsuario = calificaciones.filter(item => item.usuario === usuarioId);
+				const promedio = notasUsuario.length ? notasUsuario.reduce((suma, item) => suma + Number(item.nota || 0), 0) / notasUsuario.length : 0;
+				const registrosAsistencia = asistencia.filter(item => item.usuario === usuarioId);
+				const porcentajeAsistencia = calcularAsistencia(usuarioId);
+				const evidenciasUsuario = evidencias.filter(item => item.usuario === usuarioId);
+				const evidenciasAprobadas = evidenciasUsuario.filter(item => item.estado === 'Aprobada').length;
+
+				const insignias = [
+					{ id:'primera-entrega', icono:'🚀', nombre:'Primera entrega', requisito:'Completa tu primera tarea.', desbloqueada:tareasCompletadas >= 1 },
+					{ id:'tres-tareas', icono:'📚', nombre:'Constancia', requisito:'Completa 3 tareas.', desbloqueada:tareasCompletadas >= 3 },
+					{ id:'buen-promedio', icono:'⭐', nombre:'Excelencia académica', requisito:'Ten un promedio de 4.5 o más con al menos 3 calificaciones.', desbloqueada:notasUsuario.length >= 3 && promedio >= 4.5 },
+					{ id:'asistencia', icono:'🗓️', nombre:'Siempre presente', requisito:'Alcanza 90% o más de asistencia con al menos 5 registros.', desbloqueada:registrosAsistencia.length >= 5 && porcentajeAsistencia >= 90 },
+					{ id:'evidencia', icono:'📎', nombre:'Manos a la obra', requisito:'Sube tu primera evidencia.', desbloqueada:evidenciasUsuario.length >= 1 },
+					{ id:'evidencia-aprobada', icono:'🏅', nombre:'Trabajo destacado', requisito:'Consigue 3 evidencias aprobadas por un docente.', desbloqueada:evidenciasAprobadas >= 3 }
+				];
+
+				$('listaInsigniasEstudiante').innerHTML = insignias.map(insignia => `
+					<article class="insignia-card ${insignia.desbloqueada ? 'desbloqueada' : 'bloqueada'}">
+						<div class="insignia-icono">${insignia.desbloqueada ? insignia.icono : '🔒'}</div>
+						<h4>${insignia.nombre}</h4>
+						<p class="insignia-requisito"><strong>¿Cómo ganarla?</strong> ${insignia.requisito}</p>
+						<span class="insignia-estado">${insignia.desbloqueada ? '✓ Desbloqueada' : '🔒 Bloqueada'}</span>
+					</article>
+				`).join('');
+
+				const periodos = periodosDisponibles().map(periodo => {
+					const notasPeriodo = notasUsuario.filter(item => String(item.periodo || '1') === String(periodo));
+					const asistenciaPeriodo = registrosAsistencia.filter(item => String(item.periodo || '1') === String(periodo));
+					const promedioPeriodo = notasPeriodo.length ? notasPeriodo.reduce((suma,item) => suma + Number(item.nota || 0),0) / notasPeriodo.length : 0;
+					const presentes = asistenciaPeriodo.filter(item => ['presente','tarde'].includes(normalizarTexto(item.estado))).length;
+					const asistenciaPeriodoPct = asistenciaPeriodo.length ? Math.round((presentes / asistenciaPeriodo.length) * 100) : 0;
+					const fechaFin = obtenerConfigPeriodos(institucionSesion()).fechas[periodo] || '';
+					const filasNotas = notasPeriodo.length ? notasPeriodo.map(item => `<tr><td>${item.materia || '—'}</td><td>${item.actividad || item.tipo || 'Calificación'}</td><td>${item.porcentaje ? item.porcentaje + '%' : '—'}</td><td class="nota">${Number(item.nota || 0).toFixed(1)}</td></tr>`).join('') : '<tr><td colspan="4">No hay calificaciones registradas en este periodo.</td></tr>';
+					return `<article class="periodo-card"><h4>Periodo ${periodo}</h4><div><span>Promedio de nota</span><strong>${notasPeriodo.length ? promedioPeriodo.toFixed(1) : '—'}</strong></div><div><span>Asistencia</span><strong>${asistenciaPeriodo.length ? asistenciaPeriodoPct + '%' : '—'}</strong></div><small>Finaliza: ${fechaFin || 'Sin fecha'}<br>${notasPeriodo.length} nota(s) · ${asistenciaPeriodo.length} registro(s)</small><details class="periodo-detalle"><summary class="boton-ver-periodo">📋 Ver calificaciones del periodo ${periodo}</summary><div class="tabla-periodo"><table><thead><tr><th>Materia</th><th>Actividad</th><th>Porcentaje</th><th>Nota</th></tr></thead><tbody>${filasNotas}</tbody></table></div></details></article>`;
+				}).join('');
+				if ($('resumenPeriodosEstudiante')) $('resumenPeriodosEstudiante').innerHTML = periodos;
+
+				const lista = logros.filter(item => item.usuario === usuarioId);
+				$('listaLogrosEstudiante').innerHTML = lista.length
+					? lista.map(item => `<div class="list-item"><strong>${item.titulo}</strong><small>${item.detalle}</small><span class="status-badge">Logro desbloqueado</span></div>`).join('')
+					: '<p>Aún no tienes logros registrados. ¡Empieza completando una tarea!</p>';
+			}
+			function renderTareasProfesor() {
+				const tareasVisibles = tareas.filter(perteneceInstitucion); $('listaTareasProfesor').innerHTML = tareasVisibles.length ? tareasVisibles.map(tarea => `<div class="list-item"><strong>${tarea.titulo}</strong><small>${usuarios.find(u => u.usuario === tarea.usuario)?.nombre || tarea.usuario} · ${tarea.fecha}</small><p>${tarea.descripcion}</p><span class="pill ${tarea.estado === 'pendiente' ? 'warn' : ''}">${tarea.estado === 'pendiente' ? 'Pendiente' : 'Entregada'}</span></div>`).join('') : '<p>No hay tareas creadas.</p>';
+				if ($('tareaAula')) { const profesorActual = sessionStorage.getItem('usuario'); const aulasDisponibles = aulas.filter(aula => perteneceInstitucion(aula) && (esAdministrador() || aula.profesor === profesorActual)); $('tareaAula').innerHTML = aulasDisponibles.map(aula => `<option value="${aula.id}">${aula.nombre}</option>`).join(''); }
+			}
+			function renderAsistenciaProfesor() {
+				const lista = asistencia.filter(perteneceInstitucion).reverse().slice(0, 8);
+				$('listaAsistenciaProfesor').innerHTML = lista.length ? lista.map(registro => `<div class="list-item"><strong>${usuarios.find(u => u.usuario === registro.usuario)?.nombre || registro.usuario}</strong><small>${registro.fecha}</small><span class="pill ${registro.estado === 'Falta' ? 'warn' : ''}">${registro.estado}</span></div>`).join('') : '<p>Aún no se registró asistencia.</p>';
+				if ($('asistenciaEstudiante')) $('asistenciaEstudiante').innerHTML = usuariosVisibles().filter(u => u.rol === 'estudiante').map(u => `<option value="${u.usuario}">${u.nombre}</option>`).join('');
+				$('statGrupos').textContent = Math.max(1, materias.length || 1);
+				$('statGrupoEstudiantes').textContent = usuariosVisibles().filter(u => u.rol === 'estudiante').length;
+			}
+			function renderAulasAdmin() {
+				const visibles = aulas.filter(perteneceInstitucion); $('listaAulasAdmin').innerHTML = visibles.length ? visibles.map(aula => `<div class="list-item"><strong>${aula.nombre}</strong><small>${aula.horario}</small><br><span class="status-badge">Profesor: ${usuarios.find(u => u.usuario === aula.profesor)?.nombre || aula.profesor}</span><br><span class="status-badge">Código: ${aula.codigo}</span><br><button type="button" class="editar-aula" data-id="${aula.id}">Modificar</button><button type="button" class="secondary eliminar-aula" data-id="${aula.id}">Eliminar</button></div>`).join('') : '<p>No hay aulas creadas.</p>';
+			}
+			function actualizarListasClases() {
+				renderMateriasAdmin();
+				renderAulasAdmin();
+				renderMateriasProfesor();
+				renderAulasProfesor();
+				document.querySelectorAll('.editar-materia').forEach(boton => boton.onclick = () => editarMateria(boton.dataset.id));
+				document.querySelectorAll('.eliminar-materia').forEach(boton => boton.onclick = () => eliminarMateria(boton.dataset.id));
+				document.querySelectorAll('.editar-aula').forEach(boton => boton.onclick = () => editarAula(boton.dataset.id));
+				document.querySelectorAll('.eliminar-aula').forEach(boton => boton.onclick = () => eliminarAula(boton.dataset.id));
+			}
+			function editarMateria(id) {
+				const materia = materias.find(item => item.id === id);
+				if (!materia || !puedeGestionar(materia)) return;
+				const nombreAnterior = materia.nombre;
+				const nuevoNombre = prompt('Nombre de la materia:', materia.nombre)?.trim();
+				if (!nuevoNombre || materias.some(item => item.id !== id && normalizarTexto(item.nombre) === normalizarTexto(nuevoNombre))) return;
+				materia.nombre = nuevoNombre;
+				calificaciones.forEach(calificacion => { if (calificacion.materia === nombreAnterior) calificacion.materia = nuevoNombre; });
+				guardarMaterias();
+				localStorage.setItem('calificaciones', JSON.stringify(calificaciones));
+				actualizarListasClases();
+				renderProfesor();
+				renderResumenAdmin();
+			}
+			function eliminarMateria(id) {
+				const materia = materias.find(item => item.id === id);
+				if (!materia || !puedeGestionar(materia) || !confirm(`¿Eliminar la materia ${materia.nombre}?`)) return;
+				materias = materias.filter(item => item.id !== id);
+				guardarMaterias();
+				actualizarListasClases();
+				renderProfesor();
+				renderResumenAdmin();
+			}
+			function editarAula(id) {
+				const aula = aulas.find(item => item.id === id);
+				if (!aula || !puedeGestionar(aula)) return;
+				const nombre = prompt('Nombre del aula:', aula.nombre)?.trim();
+				const horario = prompt('Horario:', aula.horario)?.trim();
+				if (!nombre || !horario || aulas.some(item => item.id !== id && normalizarTexto(item.nombre) === normalizarTexto(nombre))) return;
+				aula.nombre = nombre;
+				aula.horario = horario;
+				guardarAulas();
+				actualizarListasClases();
+				renderResumenAdmin();
+			}
+			function eliminarAula(id) {
+				const aula = aulas.find(item => item.id === id);
+				if (!aula || !puedeGestionar(aula) || !confirm(`¿Eliminar el aula ${aula.nombre}?`)) return;
+				aulas = aulas.filter(item => item.id !== id);
+				guardarAulas();
+				actualizarListasClases();
+				renderResumenAdmin();
+			}
+		function renderTienda(user) {
+			monedas[user.usuario] = monedas[user.usuario] || {};
+			compras[user.usuario] = compras[user.usuario] || {};
+			const materia = user.materia || Object.keys(monedas[user.usuario])[0] || 'Sin materia';
+			$('saldo').textContent = monedas[user.usuario][materia] || 0;
+			const productosVisibles = productos.filter(perteneceInstitucion); $('mercadoEstudiante').innerHTML = productosVisibles.length ? productosVisibles.map(producto => `<article class="producto"><h3>${producto.nombre}</h3><p>${producto.descripcion}</p><p><b>${producto.precio} ClassCoins</b></p><button class="comprar" data-item="${producto.id}">Comprar</button></article>`).join('') : '<p>El mercado está vacío.</p>';
+			document.querySelectorAll('.comprar').forEach(boton => { const producto = productos.find(item => item.id === boton.dataset.item); boton.disabled = (monedas[user.usuario][materia] || 0) < producto.precio; boton.onclick = () => comprarProducto(user, producto, materia); });
+		}
+		function comprarProducto(user, producto, materia) { if (!user || user.rol !== 'estudiante' || !producto || !perteneceInstitucion(producto)) return $('tiendaMensaje').textContent = 'Solo los estudiantes pueden comprar recompensas de su institución.'; if ((monedas[user.usuario][materia] || 0) < producto.precio) return $('tiendaMensaje').textContent = 'Necesitas más ClassCoins en esta materia.'; monedas[user.usuario][materia] -= producto.precio; compras[user.usuario][`${materia}-${producto.id}`] = (compras[user.usuario][`${materia}-${producto.id}`] || 0) + 1; guardarEconomia(); $('tiendaMensaje').textContent = `Compra realizada: ${producto.nombre}.`; renderTienda({ ...user, materia }); }
+        function aulasCompartidas(usuarioA, usuarioB) {
+            return aulas.filter(aula => perteneceInstitucion(aula) && aula.estudiantes.includes(usuarioA) && aula.estudiantes.includes(usuarioB));
+        }
+        function puedeVerChisme(item, usuario) {
+            if (!usuario || item.institucion !== institucionSesion()) return false;
+            if (item.tipo === 'aula') return aulas.some(aula => aula.id === item.aulaId && aula.estudiantes.includes(usuario.usuario));
+            return item.autorUsuario === usuario.usuario || item.destinatarioUsuario === usuario.usuario;
+        }
+        function renderNotificacionesChismografo() {
+            limpiarNotificacionesExpiradas();
+            const usuario = usuarioSesion();
+            const privadas = JSON.parse(localStorage.getItem('chismografo') || '[]')
+                .filter(item => puedeVerChisme(item, usuario) && item.autorUsuario !== usuario?.usuario)
+                .sort((a,b) => b.fecha - a.fecha);
+            const contenedor = $('listaNotificacionesEstudiante');
+            if (!contenedor) return;
+            const anunciosHtml = contenedor.innerHTML || '';
+            const chismesHtml = privadas.map(item => `<article class="list-item"><strong>🗣️ ${escapeHtml(item.autor)} te envió un chisme <span class="status-badge">${escapeHtml(item.fechaTexto)}</span></strong><p>${escapeHtml(item.texto)}</p></article>`).join('');
+            contenedor.innerHTML = anunciosHtml + chismesHtml;
+        }
+        function renderChismografo() {
+            const usuario = usuarioSesion();
+            const institucion = institucionSesion();
+            const aulasUsuario = aulas.filter(aula => aula.estudiantes.includes(usuario?.usuario) && perteneceInstitucion(aula));
+            const usuariosDeMisAulas = new Set(aulasUsuario.flatMap(aula => aula.estudiantes));
+            const companeros = usuariosVisibles().filter(item => item.rol === 'estudiante' && item.usuario !== usuario?.usuario && usuariosDeMisAulas.has(item.usuario));
+            $('chismografoConQuien').innerHTML = '<option value="">Selecciona un compañero o compañera</option><option value="__aula__">📢 Todo el salón (público)</option>' + companeros.map(item => `<option value="${escapeHtml(item.usuario)}">${escapeHtml(item.nombre)}</option>`).join('');
+            const publicaciones = JSON.parse(localStorage.getItem('chismografo') || '[]')
+                .filter(item => puedeVerChisme(item, usuario) && (item.tipo === 'aula' || item.autorUsuario === usuario?.usuario || item.destinatarioUsuario === usuario?.usuario))
+                .sort((a,b) => b.fecha - a.fecha);
+            $('listaChismografo').innerHTML = publicaciones.length ? publicaciones.map(item => `
+                <article class="list-item">
+                    <strong>${escapeHtml(item.autor)} → ${escapeHtml(item.tipo === 'aula' ? 'todo el salón' : item.destinatario || 'compañero/a')} <span class="status-badge">${escapeHtml(item.fechaTexto)}</span></strong>
+                    <p>${escapeHtml(item.texto)}</p>
+                </article>`).join('') : '<p>Aún no hay publicaciones visibles para ti.</p>';
+            renderNotificacionesChismografo();
+        }
+        function escapeHtml(text) {
+            return String(text).replace(/[&<>'"]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
+        }
+
+		function mostrarPanel(id) { document.querySelectorAll('#estudiante .panel').forEach(panel => panel.classList.toggle('activo', panel.id === id)); document.querySelectorAll('.barra button').forEach(boton => boton.classList.toggle('activo', boton.dataset.panel === id)); }
+		function totalMonedas(usuario) { return Object.values(monedas[usuario] || {}).reduce((total, saldo) => total + Number(saldo || 0), 0); }
+		function promedioEstudiante(usuarioId) { const notas = calificaciones.filter(n => n.usuario === usuarioId); return notas.length ? notas.reduce((s,n)=>s+Number(n.nota||0),0)/notas.length : 0; } function filasRankingCalificaciones() { const ranking = usuariosVisibles().filter(u => u.rol === 'estudiante').sort((a,b)=>promedioEstudiante(b.usuario)-promedioEstudiante(a.usuario)); return ranking.map((u,i)=>`<tr><td>${i+1}</td><td>${u.nombre}</td><td class="nota">${promedioEstudiante(u.usuario) ? promedioEstudiante(u.usuario).toFixed(1) : '—'}</td></tr>`).join(''); } function filasRankingCoins() { const ranking = usuariosVisibles().filter(u => u.rol === 'estudiante').sort((a,b)=>totalMonedas(b.usuario)-totalMonedas(a.usuario)); return ranking.map((u,i)=>`<tr><td>${i+1}</td><td>${u.nombre}</td><td class="nota">${totalMonedas(u.usuario)}</td></tr>`).join(''); } function renderRanking() { if ($('ranking')) $('ranking').innerHTML = filasRankingCalificaciones(); if ($('rankingCoins')) $('rankingCoins').innerHTML = filasRankingCoins(); }
+		function mostrarPanelProfesor(id) { const contenedor = document.getElementById('profesor'); if (!contenedor) return; const panelObjetivo = document.getElementById(id); contenedor.querySelectorAll('.panel').forEach(panel => panel.classList.toggle('activo', panel === panelObjetivo)); contenedor.querySelectorAll('.barra button').forEach(boton => boton.classList.toggle('activo', boton.dataset.panel === id)); if (panelObjetivo) panelObjetivo.scrollIntoView({ behavior: 'auto', block: 'start' }); }
+		function mostrarPanelAdmin(id) { document.querySelectorAll('#administrador .panel').forEach(panel => { panel.classList.toggle('activo', panel.id === id); if (panel.id === 'adminInstituciones') panel.classList.toggle('hidden', !esCreadorOriginal()); }); document.querySelectorAll('#administrador .barra button').forEach(boton => boton.classList.toggle('activo', boton.dataset.panel === id)); }
+		document.addEventListener('click', event => { const boton = event.target.closest('[data-admin-accion]'); if (boton) mostrarPanelAdmin(boton.dataset.adminAccion); });
+		function renderPersonasAdmin() {
+			$('listaEstudiantesAdmin').innerHTML = usuariosVisibles().filter(u => u.rol === 'estudiante').map(u => `<p>${avatarHTML(u)} ${u.nombre} <span class="status-badge">${u.institucion}</span><br>${resumenPerfil(u)} <button type="button" class="secondary quitar" data-usuario="${u.usuario}">Quitar</button></p>`).join('') || '<p>No hay estudiantes.</p>';
+			$('listaProfesoresAdmin').innerHTML = usuariosVisibles().filter(u => u.rol === 'profesor').map(u => `<p>${avatarHTML(u)} ${u.nombre} <span class="status-badge">${u.institucion}</span><br>${resumenPerfil(u)} <button type="button" class="secondary quitar-profesor" data-usuario="${u.usuario}">Quitar</button></p>`).join('') || '<p>No hay profesores.</p>';
+			document.querySelectorAll('#listaEstudiantesAdmin .quitar').forEach(boton => boton.onclick = () => quitarEstudiante(boton.dataset.usuario));
+			document.querySelectorAll('#listaProfesoresAdmin .quitar-profesor').forEach(boton => boton.onclick = () => quitarProfesor(boton.dataset.usuario));
+		}
+		function renderInstituciones() {
+			$('listaInstituciones').innerHTML = instituciones.map(institucion => {
+				const miembros = usuarios.filter(usuario => usuario.institucion === institucion.nombre);
+				const detalle = esCreadorOriginal() ? `<div class="institucion-miembros">${miembros.length ? miembros.map(miembro => {
+					const rolTexto = miembro.rol === 'creadorOriginal' ? 'Creador original' : miembro.rol === 'administrador' ? 'Administrador institucional' : miembro.rol === 'profesor' ? 'Profesor' : 'Estudiante';
+					const puedeQuitar = miembro.rol !== 'creadorOriginal';
+					return `<div class="institucion-miembro">${avatarHTML(miembro)} <span><strong>${miembro.nombre}</strong><small>${rolTexto}</small></span>${puedeQuitar ? `<button type="button" class="secondary quitar-institucion" data-usuario="${miembro.usuario}" data-institucion="${institucion.id}">Quitar de esta institución</button>` : ''}</div>`;
+				}).join('') : '<small>No hay cuentas asociadas.</small>'}</div>` : '';
+				return `<div class="list-item"><strong>${institucion.nombre}</strong><small>${miembros.length} cuenta(s)</small><br><button type="button" class="editar-institucion" data-id="${institucion.id}">Modificar</button><button type="button" class="secondary eliminar-institucion" data-id="${institucion.id}">Eliminar</button>${detalle}</div>`;
+			}).join('');
+			document.querySelectorAll('.editar-institucion').forEach(boton => boton.onclick = () => editarInstitucion(boton.dataset.id));
+			document.querySelectorAll('.eliminar-institucion').forEach(boton => boton.onclick = () => eliminarInstitucion(boton.dataset.id));
+			document.querySelectorAll('.quitar-institucion').forEach(boton => boton.onclick = () => quitarDeInstitucion(boton.dataset.usuario, boton.dataset.institucion));
+		}
+
+		function guardarUsuariosExtra() {
+			localStorage.setItem('estudiantesExtra', JSON.stringify(usuarios.filter(usuario => usuario.rol === 'estudiante' && !['ana','luis'].includes(usuario.usuario))));
+			localStorage.setItem('profesoresExtra', JSON.stringify(usuarios.filter(usuario => usuario.rol === 'profesor' && usuario.usuario !== 'profesor')));
+			localStorage.setItem('administradoresExtra', JSON.stringify(usuarios.filter(usuario => usuario.rol === 'administrador')));
+			const institucionesUsuarios = {};
+			usuarios.forEach(usuario => institucionesUsuarios[usuario.usuario] = usuario.institucion || '');
+			localStorage.setItem('institucionesUsuarios', JSON.stringify(institucionesUsuarios));
+		}
+
+		function quitarDeInstitucion(usuario, institucionId) {
+			if (!esCreadorOriginal()) return;
+			const miembro = usuarios.find(item => item.usuario === usuario);
+			const institucion = instituciones.find(item => item.id === institucionId);
+			if (!miembro || miembro.rol === 'creadorOriginal' || !institucion || miembro.institucion !== institucion.nombre) return;
+			if (!confirm(`¿Quitar a ${miembro.nombre} de ${institucion.nombre}? Su cuenta no será eliminada.`)) return;
+			miembro.institucion = '';
+			miembro.requiereInstitucion = true;
+			guardarUsuariosExtra();
+			renderInstituciones();
+			renderPersonasAdmin();
+			renderResumenAdmin();
+			$('institucionMensaje').textContent = `${miembro.nombre} fue quitado de ${institucion.nombre}. Su cuenta sigue existiendo y podrá entrar a otra institución.`;
+		}
+		function quitarAdministradorInstitucional(usuario) {
+			if (!esCreadorOriginal()) return;
+			const administrador = usuarios.find(item => item.usuario === usuario && item.rol === 'administrador');
+			if (!administrador || !confirm(`¿Quitar a ${administrador.nombre} como administrador institucional?`)) return;
+			usuarios.splice(usuarios.indexOf(administrador), 1);
+			const administradores = leerJSON('administradoresExtra', []).filter(item => item.usuario !== usuario);
+			localStorage.setItem('administradoresExtra', JSON.stringify(administradores));
+			delete fotosPerfil[usuario]; delete perfiles[usuario]; localStorage.setItem('fotosPerfil', JSON.stringify(fotosPerfil)); localStorage.setItem('perfiles', JSON.stringify(perfiles));
+			renderInstituciones(); renderPersonasAdmin(); renderResumenAdmin(); $('institucionMensaje').textContent = `${administrador.nombre} fue quitado como administrador.`;
+		}
+		function editarInstitucion(id) {
+			if (!esCreadorOriginal()) return;
+			const institucion = instituciones.find(item => item.id === id); if (!institucion) return;
+			const nombreAnterior = institucion.nombre; const nuevoNombre = prompt('Nombre de la institución:', nombreAnterior)?.trim();
+			if (!nuevoNombre || normalizarTexto(nuevoNombre) === normalizarTexto(nombreAnterior)) return;
+			if (instituciones.some(item => item.id !== id && normalizarTexto(item.nombre) === normalizarTexto(nuevoNombre))) return $('institucionMensaje').textContent = 'Esa institución ya existe.';
+			institucion.nombre = nuevoNombre;
+			usuarios.forEach(usuario => { if (usuario.institucion === nombreAnterior) usuario.institucion = nuevoNombre; });
+			[materias, aulas, calificaciones, tareas, sesiones, evidencias, asistencia, productos].forEach(registros => registros.forEach(registro => { if (registro.institucion === nombreAnterior) registro.institucion = nuevoNombre; }));
+			const institucionesUsuarios = {}; usuarios.forEach(usuario => { institucionesUsuarios[usuario.usuario] = usuario.institucion; }); localStorage.setItem('institucionesUsuarios', JSON.stringify(institucionesUsuarios));
+			localStorage.setItem('instituciones', JSON.stringify(instituciones)); localStorage.setItem('estudiantesExtra', JSON.stringify(usuarios.filter(usuario => usuario.rol === 'estudiante' && usuario.usuario !== 'ana' && usuario.usuario !== 'luis'))); localStorage.setItem('profesoresExtra', JSON.stringify(usuarios.filter(usuario => usuario.rol === 'profesor' && usuario.usuario !== 'profesor'))); localStorage.setItem('administradoresExtra', JSON.stringify(usuarios.filter(usuario => usuario.rol === 'administrador'))); localStorage.setItem('materias', JSON.stringify(materias)); localStorage.setItem('aulas', JSON.stringify(aulas)); localStorage.setItem('calificaciones', JSON.stringify(calificaciones)); localStorage.setItem('tareas', JSON.stringify(tareas)); localStorage.setItem('sesiones', JSON.stringify(sesiones)); localStorage.setItem('evidencias', JSON.stringify(evidencias)); localStorage.setItem('asistencia', JSON.stringify(asistencia)); localStorage.setItem('productos', JSON.stringify(productos));
+			renderInstituciones(); renderPersonasAdmin(); renderResumenAdmin(); $('institucionMensaje').textContent = 'Institución modificada correctamente.';
+		}
+		function eliminarInstitucion(id) {
+			if (!esCreadorOriginal()) return;
+			const institucion = instituciones.find(item => item.id === id); if (!institucion) return;
+			const cuentas = usuarios.filter(usuario => usuario.institucion === institucion.nombre).length;
+			if (cuentas) return $('institucionMensaje').textContent = 'No puedes eliminar una institución con cuentas asociadas.';
+			if (!confirm(`¿Eliminar la institución ${institucion.nombre}?`)) return;
+			instituciones = instituciones.filter(item => item.id !== id); localStorage.setItem('instituciones', JSON.stringify(instituciones)); renderInstituciones(); $('institucionMensaje').textContent = 'Institución eliminada correctamente.';
+		}
+		function renderRankingProfesor() { if ($('rankingProfesor')) $('rankingProfesor').innerHTML = filasRankingCalificaciones(); if ($('rankingCoinsProfesor')) $('rankingCoinsProfesor').innerHTML = filasRankingCoins(); }
+		function renderProductosProfesor() { const visibles = productos.filter(perteneceInstitucion); $('listaProductosProfesor').innerHTML = visibles.length ? visibles.map(producto => `<p><b>${producto.nombre}</b> - ${producto.precio} ClassCoins <button type="button" class="secondary editar-producto" data-id="${producto.id}">Cambiar precio</button> <button type="button" class="secondary eliminar-producto" data-id="${producto.id}">Quitar</button></p>`).join('') : '<p>No hay recompensas en el mercado.</p>'; document.querySelectorAll('.editar-producto').forEach(boton => boton.onclick = () => editarPrecio(boton.dataset.id)); document.querySelectorAll('.eliminar-producto').forEach(boton => boton.onclick = () => eliminarProducto(boton.dataset.id)); }
+		function editarPrecio(id) { const producto = productos.find(item => item.id === id); if (!producto || !perteneceInstitucion(producto)) return; const precio = Number(prompt(`Nuevo precio para ${producto.nombre}:`, producto.precio)); if (!Number.isInteger(precio) || precio < 1) return; producto.precio = precio; guardarProductos(); renderProductosProfesor(); const estudiante = usuarios.find(u => u.usuario === sessionStorage.getItem('usuario')); if (estudiante) renderTienda(estudiante); }
+		function eliminarProducto(id) { const producto = productos.find(item => item.id === id); if (!producto || !perteneceInstitucion(producto) || !confirm(`¿Quitar ${producto.nombre} del mercado?`)) return; productos = productos.filter(item => item.id !== id); guardarProductos(); renderProductosProfesor(); const estudiante = usuarios.find(u => u.usuario === sessionStorage.getItem('usuario')); if (estudiante && estudiante.rol === 'estudiante') renderTienda(estudiante); }
+		function renderEstudiantes() { renderPersonasAdmin(); }
+		function quitarEstudiante(usuario) {
+			const estudiante = usuarios.find(u => u.usuario === usuario);
+			if (!estudiante || estudiante.rol !== 'estudiante' || !confirm(`¿Quitar a ${estudiante.nombre} del salón?`)) return;
+			usuarios.splice(usuarios.indexOf(estudiante), 1);
+			const extras = JSON.parse(localStorage.getItem('estudiantesExtra') || '[]');
+			localStorage.setItem('estudiantesExtra', JSON.stringify(extras.filter(u => u.usuario !== usuario)));
+			const eliminados = JSON.parse(localStorage.getItem('estudiantesEliminados') || '[]');
+			eliminados.push(usuario); localStorage.setItem('estudiantesEliminados', JSON.stringify([...new Set(eliminados)]));
+			calificaciones = calificaciones.filter(n => n.usuario !== usuario); delete monedas[usuario]; delete compras[usuario]; localStorage.setItem('calificaciones', JSON.stringify(calificaciones)); guardarEconomia(); renderPersonasAdmin(); renderProductosProfesor(); renderResumenAdmin(); $('estudianteMensaje').textContent = `${estudiante.nombre} fue quitado del salón.`;
+		}
+		function quitarProfesor(usuario) {
+			const profesor = usuarios.find(u => u.usuario === usuario);
+			if (!profesor || profesor.rol !== 'profesor' || profesor.rol === 'administrador' || !confirm(`¿Quitar a ${profesor.nombre} como profesor?`)) return;
+			usuarios.splice(usuarios.indexOf(profesor), 1);
+			const extras = JSON.parse(localStorage.getItem('profesoresExtra') || '[]');
+			localStorage.setItem('profesoresExtra', JSON.stringify(extras.filter(u => u.usuario !== usuario)));
+			renderPersonasAdmin(); renderResumenAdmin(); $('profesorMensaje').textContent = `${profesor.nombre} fue quitado del sistema.`;
+		}
+		function renderEstudiante(user) {
+			$('bienvenida').textContent = `Bienvenido/a, ${user.nombre}.`;
+			renderAnuncios('inicioAnunciosEstudiante', 3); renderAnuncios('listaNotificacionesEstudiante'); renderNotificacionesChismografo();
+			$('nombrePerfil').textContent = user.nombre; renderAvatarPerfil('perfilAvatarEstudiante', user); cargarDatosPerfil(user, { tardes:'perfilTardesEstudiante', intereses:'perfilInteresesEstudiante', descripcion:'perfilDescripcionEstudiante' }); renderRanking(); mostrarPanel('inicioPanel');
+				renderTareasEstudiante(user);
+				renderCalendarioTareasEstudiante(user);
+				renderEvidenciasEstudiante(user);
+				renderAulasEstudiante(user);
+				renderLogrosEstudiante(user);
+			const notas = calificaciones.filter(n => n.usuario === user.usuario);
+			const aulasDelEstudiante = aulas.filter(aula => aula.estudiantes.includes(user.usuario) && perteneceInstitucion(aula));
+			const idsAulasDelEstudiante = new Set(aulasDelEstudiante.map(aula => aula.id));
+			const materiasDelEstudiante = materias.filter(materia => idsAulasDelEstudiante.has(materia.aulaId) && perteneceInstitucion(materia));
+			const nombresMaterias = [...new Set(materiasDelEstudiante.map(materia => materia.nombre))];
+			const materiasEstudiante = [...new Set([...nombresMaterias, ...notas.filter(nota => nombresMaterias.includes(nota.materia)).map(nota => nota.materia)])];
+			$('listaMaterias').innerHTML = materiasEstudiante.length ? materiasEstudiante.map(materia => `<button type="button" class="materia" data-materia="${materia}">${materia}</button>`).join('') : '<p>Aún no tienes materias calificadas.</p>';
+			$('listaMaterias').querySelectorAll('.materia').forEach(boton => boton.addEventListener('click', () => { mostrarMateria(notas, boton.dataset.materia); renderTienda({ ...user, materia:boton.dataset.materia }); $('listaMaterias').querySelectorAll('.materia').forEach(item => item.classList.toggle('activo', item === boton)); }));
+			renderMateriasEstudiantePanel(user, notas, materiasEstudiante);
+			if (materiasEstudiante.length) { const primeraMateria = $('listaMaterias').querySelector('.materia'); primeraMateria.click(); } else renderTienda(user);
+		}
+		function renderMateriasEstudiantePanel(user, notas, materias) {
+			$('listaMateriasPanel').innerHTML = materias.length ? materias.map(materia => `<button type="button" class="materia" data-materia="${materia}">${materia}</button>`).join('') : '<p>Aún no tienes materias calificadas.</p>';
+			$('listaMateriasPanel').querySelectorAll('.materia').forEach(boton => boton.addEventListener('click', () => { const resultados = notas.filter(nota => nota.materia === boton.dataset.materia); $('detalleMateriaPanel').innerHTML = `<h3>${boton.dataset.materia}</h3><table><thead><tr><th>Calificación</th></tr></thead><tbody>${resultados.map(nota => `<tr><td class="nota">${Number(nota.nota).toFixed(1)}</td></tr>`).join('')}</tbody></table>`; $('listaMateriasPanel').querySelectorAll('.materia').forEach(item => item.classList.toggle('activo', item === boton)); }));
+			if (materias.length) $('listaMateriasPanel').querySelector('.materia').click();
+		}
+		function mostrarMateria(notas, materia) { const resultados = notas.filter(n => n.materia === materia); $('detalleMateria').innerHTML = `<h3>${materia}</h3><table><thead><tr><th>Calificación</th></tr></thead><tbody>${resultados.map(n => `<tr><td class="nota">${n.nota}</td></tr>`).join('')}</tbody></table>`; }
+		function renderCuadernoEvaluacionProfesor() {
+			const contenedor = $('cuadernoEvaluacionProfesor');
+			if (!contenedor) return;
+			const aulasProfesor = aulas.filter(a => a.profesor === sessionStorage.getItem('usuario') && perteneceInstitucion(a));
+			const idsAulas = new Set(aulasProfesor.map(a => a.id));
+			const notas = calificaciones.filter(n => perteneceInstitucion(n) && idsAulas.has(n.aulaId));
+			const actividades = [...new Map(notas.map(n => [`${n.materia}|${n.periodo}|${n.tipo}`, {materia:n.materia, periodo:n.periodo || '1', tipo:n.tipo || 'Actividad', porcentaje:Number(n.porcentaje || 0)}])).values()];
+			const estudiantes = usuariosVisibles().filter(u => u.rol === 'estudiante' && aulasProfesor.some(a => (a.estudiantes || []).includes(u.usuario))).sort((a,b) => a.nombre.localeCompare(b.nombre, 'es', {sensitivity:'base'}));
+			if (!actividades.length || !estudiantes.length) { contenedor.innerHTML = '<p class="muted">Aún no hay suficientes datos para mostrar el cuaderno de evaluación.</p>'; return; }
+			const columnas = actividades.map(a => `<th>${a.tipo}<br><small>${a.materia} · P${a.periodo}<br>${a.porcentaje}%</small></th>`).join('');
+			const filas = estudiantes.map(e => { const celdas = actividades.map(a => { const n = notas.find(x => x.usuario === e.usuario && x.materia === a.materia && String(x.periodo || '1') === String(a.periodo) && (x.tipo || 'Actividad') === a.tipo); return `<td>${n ? Number(n.nota).toFixed(1) : '—'}</td>`; }).join(''); const propias = notas.filter(n => n.usuario === e.usuario); const suma = propias.reduce((t,n) => t + Number(n.nota || 0) * Number(n.porcentaje || 0), 0); const pesos = propias.reduce((t,n) => t + Number(n.porcentaje || 0), 0); const promedio = pesos ? (suma / pesos).toFixed(2) : '—'; return `<tr><td><strong>${e.nombre}</strong></td>${celdas}<td class="nota"><strong>${promedio}</strong></td></tr>`; }).join('');
+			contenedor.innerHTML = `<div class="table-scroll"><table><thead><tr><th>Estudiante</th>${columnas}<th>Promedio ponderado</th></tr></thead><tbody>${filas}</tbody></table></div>`;
+		}
+
+		function renderProfesor() {
+			renderAnuncios('inicioAnunciosProfesor', 3); renderAnuncios('listaNotificacionesProfesor');
+			renderAvatarPerfil('perfilAvatarProfesor', usuarioSesion());
+			cargarDatosPerfil(usuarioSesion(), { tardes:'perfilTardesProfesor', intereses:'perfilInteresesProfesor', descripcion:'perfilDescripcionProfesor' });
+			const estudiantes = usuariosVisibles().filter(u => u.rol === 'estudiante').map(u => `<option value="${u.usuario}">${u.nombre}</option>`).join('');
+			$('alumno').innerHTML = estudiantes; $('alumnoMonedas').innerHTML = estudiantes;
+			const aulasProfesor = aulas.filter(aula => aula.profesor === sessionStorage.getItem('usuario') && perteneceInstitucion(aula));
+			$('profesorMateriaAula').innerHTML = aulasProfesor.map(aula => `<option value="${aula.id}">${aula.nombre}</option>`).join('');
+			$('nuevoEstudianteInstitucion').innerHTML = `<option value="${institucionSesion()}">${institucionSesion()}</option>`;
+			$('notaAula').innerHTML = aulasProfesor.map(aula => `<option value="${aula.id}">${aula.nombre}</option>`).join('');
+			$('anuncioAula').innerHTML = aulasProfesor.map(aula => `<option value="${aula.id}">${aula.nombre}</option>`).join('') || '<option value="">No tienes aulas disponibles</option>';
+			function actualizarEstudiantesPorAula() {
+				const aulaSeleccionada = aulas.find(aula => aula.id === $('notaAula').value);
+				const usuariosAula = new Set(aulaSeleccionada?.estudiantes || []);
+				$('alumno').innerHTML = usuariosVisibles().filter(u => u.rol === 'estudiante' && usuariosAula.has(u.usuario)).map(u => `<option value="${u.usuario}">${u.nombre}</option>`).join('') || '<option value="">No hay estudiantes en esta aula</option>';
+				const materiasAula = materias.filter(m => m.aulaId === $('notaAula').value && perteneceInstitucion(m));
+				const materiasPredefinidas = ['Inglés','Lengua Castellana','Matemáticas','Ciencias Naturales','Ciencias Sociales','Educación Física','Educación Artística','Tecnología e Informática','Ética y Valores','Religión'];
+				const nombres = [...new Set([...materiasPredefinidas, ...materiasAula.map(m => m.nombre)])];
+				$('materia').innerHTML = '<option value="">Selecciona una materia</option>' + nombres.map(nombre => `<option value="${nombre}">${nombre}</option>`).join('') + '<option value="__OTRO__">Otro</option>';
+				$('otroMateriaWrap').classList.add('hidden');
+				$('otroMateria').value = '';
+			}
+			$('notaAula').onchange = actualizarEstudiantesPorAula;
+			$('materia').onchange = () => {
+				const esOtro = $('materia').value === '__OTRO__';
+				$('otroMateriaWrap').classList.toggle('hidden', !esOtro);
+				$('otroMateria').required = esOtro;
+				if (!esOtro) $('otroMateria').value = '';
+			};
+			actualizarEstudiantesPorAula();
+				if ($('tareaEstudiante')) $('tareaEstudiante').innerHTML = estudiantes;
+				if ($('asistenciaEstudiante')) $('asistenciaEstudiante').innerHTML = estudiantes;
+			const opcionesMaterias = [...new Set([...materias.map(m => m.nombre), ...calificaciones.map(n => n.materia)])];
+			$('materiaMonedas').innerHTML = opcionesMaterias.map(materia => `<option value="${materia}">${materia}</option>`).join('');
+			const calificacionesVisibles = calificaciones.filter(perteneceInstitucion); $('tablaProfesor').innerHTML = calificacionesVisibles.map(n => { const indice = calificaciones.indexOf(n); return `<tr><td>${n.nombre}</td><td>${n.materia}</td><td>${Number(n.nota).toFixed(1)}</td><td><button type="button" class="secondary accion-nota" onclick="editarCalificacion(${indice})">Cambiar</button><button type="button" class="secondary accion-nota" onclick="eliminarCalificacion(${indice})">Quitar</button></td></tr>`; }).join('') || '<tr><td colspan="4">No hay calificaciones.</td></tr>';
+				renderTareasProfesor();
+				renderEvidenciasProfesor();
+				renderAsistenciaProfesor();
+				renderMateriasProfesor();
+				renderAulasProfesor();
+			if ($('listaSesionesProfesor')) renderSesionesProfesor(); renderCuadernoEvaluacionProfesor(); renderRankingProfesor(); mostrarPanelProfesor('profesorInicio');
+		}
+		function renderSesionesProfesor() {
+			if (!$('listaSesionesProfesor')) return;
+			const sesionesVisibles = sesiones.filter(perteneceInstitucion); $('listaSesionesProfesor').innerHTML = sesionesVisibles.length ? sesionesVisibles.map(sesion => `<div class="item-lista"><strong>${sesion.titulo}</strong><small>${sesion.fecha} · ${sesion.aula}</small><p>${sesion.descripcion}</p></div>`).join('') : '<p>No hay sesiones programadas.</p>';
+		}
+		function renderAdministrador() { const admin = usuarioSesion(); renderPersonasAdmin(); renderProductosProfesor(); renderResumenAdmin(); renderCentroControlAdmin(); actualizarListasClases(); renderInstituciones(); renderConfiguracionPeriodos(); renderSelectoresPeriodos(); $('adminInstituciones').classList.toggle('hidden', admin.rol !== 'creadorOriginal'); if ($('panelPersonasEnLinea')) $('panelPersonasEnLinea').classList.toggle('hidden', admin.rol !== 'creadorOriginal'); actualizarPresencia(); if ($('materiaProfesor')) { $('materiaProfesor').innerHTML = usuariosVisibles().filter(u => u.rol === 'profesor' || esRolAdministrativo(u.rol)).map(u => `<option value="${u.usuario}">${u.nombre}</option>`).join(''); } if ($('materiaAula')) { $('materiaAula').innerHTML = aulas.filter(perteneceInstitucion).map(aula => `<option value="${aula.id}">${aula.nombre}</option>`).join(''); } $('adminUsuario').value = admin.usuario; $('adminNombre').value = admin.nombre; $('adminClave').value = ''; $('tituloPanelAdmin').textContent = admin.rol === 'creadorOriginal' ? 'Panel del creador original' : 'Panel del administrador institucional'; $('subtituloPanelAdmin').textContent = `${admin.institucion} · Gestiona las personas, aulas y recompensas de tu institución.`; $('topInstituciones').classList.toggle('hidden', admin.rol !== 'creadorOriginal'); mostrarPanelAdmin('adminInicio'); }
+			function crearTareaProfesor(usuario, titulo, descripcion, fecha, aulaId = null) {
+				const tarea = { id: `tarea-${Date.now()}-${usuario}`, usuario, aulaId, titulo, descripcion, fecha, estado: 'pendiente', institucion: institucionDeUsuario(usuario) };
+				tareas.push(tarea);
+				guardarTareas();
+				if (!logros.some(item => item.usuario === usuario && item.titulo === 'Primera tarea')) {
+					logros.push({ id: `logro-${Date.now()}`, usuario, titulo: 'Primera tarea', detalle: 'Recibió su primera tarea asignada' });
+					guardarLogros();
+				}
+			}
+		function editarCalificacion(indice) { const calificacion = calificaciones[indice]; if (!calificacion) return; const materia = prompt('Materia:', calificacion.materia); const nota = prompt('Calificación (1 a 5):', calificacion.nota); if (!materia || nota === null || Number(nota) < 1 || Number(nota) > 5) return; calificacion.materia = materia.trim(); calificacion.nota = Number(nota).toFixed(1); localStorage.setItem('calificaciones', JSON.stringify(calificaciones)); renderProfesor(); }
+		function eliminarCalificacion(indice) { if (!calificaciones[indice] || !confirm('¿Quitar esta calificación?')) return; calificaciones.splice(indice, 1); localStorage.setItem('calificaciones', JSON.stringify(calificaciones)); renderProfesor(); }
+		let usuarioPendienteIngreso = null;
+		function abrirPanelUsuario(usuario) { sessionStorage.setItem('usuario', usuario.usuario); $('loginError').textContent = ''; $('institucionIngresoForm').classList.add('hidden'); esRolAdministrativo(usuario.rol) ? (renderAdministrador(), mostrar('administrador')) : usuario.rol === 'profesor' ? (renderProfesor(), mostrar('profesor')) : (renderEstudiante(usuario), mostrar('estudiante')); }
+		function guardarInstitucionUsuario(usuario, institucion) { usuario.institucion = institucion; delete usuario.requiereInstitucion; const claveStorage = usuario.rol === 'profesor' ? 'profesoresExtra' : usuario.rol === 'administrador' ? 'administradoresExtra' : 'estudiantesExtra'; const cuentas = leerJSON(claveStorage, []); const cuenta = cuentas.find(item => item.usuario === usuario.usuario); if (cuenta) { cuenta.institucion = institucion; delete cuenta.requiereInstitucion; localStorage.setItem(claveStorage, JSON.stringify(cuentas)); } }
+		$('loginForm').addEventListener('submit', e => {
+			e.preventDefault();
+			const usuarioIngresado = normalizarTexto($('usuario').value);
+			const claveIngresada = $('contrasena').value.trim();
+			if (!usuarioIngresado || !claveIngresada) return $('loginError').textContent = 'Escribe tu usuario y contraseña.';
+			const u = usuarios.find(x => (normalizarTexto(x.usuario) === usuarioIngresado || normalizarTexto(x.correo || '') === usuarioIngresado) && String(x.clave).trim() === claveIngresada);
+			if (!u) return $('loginError').textContent = 'Usuario o contraseña incorrectos.';
+			try {
+				if (u.requiereInstitucion || !institucionValida(u.institucion)) { usuarioPendienteIngreso = u; $('institucionIngresoForm').classList.remove('hidden'); $('institucionIngreso').value = ''; $('loginError').textContent = 'Debes indicar tu institución antes de entrar.'; return; }
+				abrirPanelUsuario(u);
+			} catch (error) {
+				sessionStorage.removeItem('usuario');
+				$('loginError').textContent = 'No se pudo abrir tu panel. Recarga la página e inténtalo de nuevo.';
+			}
+		});
+		$('institucionIngresoForm').addEventListener('submit', e => { e.preventDefault(); const usuario = usuarioPendienteIngreso; const institucion = $('institucionIngreso').value.trim(); if (!usuario || !institucionValida(institucion)) return $('institucionIngresoMensaje').textContent = 'La institución es obligatoria.'; const existe = instituciones.some(item => normalizarTexto(item.nombre) === normalizarTexto(institucion)); if (!existe && usuario.rol !== 'administrador') return $('institucionIngresoMensaje').textContent = 'Debes elegir una institución existente.'; if (usuario.rol === 'administrador' && administradoresInstitucion(institucion).length >= 3) return $('institucionIngresoMensaje').textContent = 'Esta institución ya tiene el máximo de 3 administradores.'; if (!existe) { instituciones.push({ id:`institucion-${Date.now()}`, nombre:institucion }); localStorage.setItem('instituciones', JSON.stringify(instituciones)); } guardarInstitucionUsuario(usuario, institucion); usuarioPendienteIngreso = null; abrirPanelUsuario(usuario); });
+		$('mostrarRegistro').addEventListener('click', () => { $('registroForm').classList.toggle('hidden'); $('registroMensaje').textContent = ''; });
+		$('configPeriodosForm')?.addEventListener('submit', e => { e.preventDefault(); const admin=usuarioSesion(); if (!admin || !esRolAdministrativo(admin.rol)) return; const cantidad=Math.min(4,Math.max(1,Number($('cantidadPeriodos').value)||4)); const fechas={}; for(let n=1;n<=cantidad;n++){ const valor=$('fechaPeriodo'+n)?.value || ''; if(!valor) return $('configPeriodosMensaje').textContent='Completa la fecha de finalización de todos los periodos.'; fechas[n]=valor; } guardarConfigPeriodos(admin.institucion,{cantidad,fechas}); renderConfiguracionPeriodos(); renderSelectoresPeriodos(); $('configPeriodosMensaje').textContent='Configuración de periodos guardada correctamente.'; });
+		$('institucionForm').addEventListener('submit', e => { e.preventDefault(); if (!esCreadorOriginal()) return; const nombre = $('nuevaInstitucion').value.trim(); if (!nombre) return $('institucionMensaje').textContent = 'Escribe el nombre de la institución.'; if (instituciones.some(item => normalizarTexto(item.nombre) === normalizarTexto(nombre))) return $('institucionMensaje').textContent = 'Esa institución ya existe.'; instituciones.push({ id:`institucion-${Date.now()}`, nombre }); localStorage.setItem('instituciones', JSON.stringify(instituciones)); renderInstituciones(); $('institucionForm').reset(); $('institucionMensaje').textContent = 'Institución creada correctamente.'; });
+		$('registroForm').addEventListener('submit', e => {
+			e.preventDefault();
+			const rol = $('registroRol').value;
+			const institucion = $('registroInstitucion').value.trim();
+			const usuario = normalizarTexto($('registroUsuario').value);
+			const correo = $('registroCorreo').value.trim().toLowerCase();
+			const nombre = $('registroNombre').value.trim();
+			const clave = $('registroClave').value.trim();
+			if (!usuario || !correo || !nombre || !clave || !institucionValida(institucion)) return $('registroMensaje').textContent = 'Completa todos los campos, incluido el correo electrónico y la institución.';
+			if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) return $('registroMensaje').textContent = 'Escribe un correo electrónico válido.';
+			if (usuarios.some(u => normalizarTexto(u.usuario) === usuario) || estudiantesEliminados.includes(usuario)) return $('registroMensaje').textContent = 'Ese usuario no está disponible.';
+			if (usuarios.some(u => normalizarTexto(u.correo || '') === correo)) return $('registroMensaje').textContent = 'Ese correo electrónico ya está registrado.';
+			if (rol === 'administrador' && administradoresInstitucion(institucion).length >= 3) return $('registroMensaje').textContent = 'Esta institución ya tiene el máximo de 3 administradores.';
+			const existeInstitucion = instituciones.some(item => normalizarTexto(item.nombre) === normalizarTexto(institucion));
+			if (!existeInstitucion && rol !== 'administrador') return $('registroMensaje').textContent = 'Una institución nueva debe comenzar con una cuenta de administrador.';
+			if (!existeInstitucion) instituciones.push({ id:`institucion-${Date.now()}`, nombre:institucion });
+			localStorage.setItem('instituciones', JSON.stringify(instituciones));
+			const cuenta = { usuario, correo, clave, nombre, rol, institucion };
+			usuarios.push(cuenta);
+			const claveStorage = rol === 'profesor' ? 'profesoresExtra' : rol === 'administrador' ? 'administradoresExtra' : 'estudiantesExtra';
+			const cuentasExtra = leerJSON(claveStorage, []);
+			cuentasExtra.push(cuenta);
+			localStorage.setItem(claveStorage, JSON.stringify(cuentasExtra));
+			if (rol === 'estudiante') {
+				monedas[usuario] = {};
+				guardarEconomia();
+			}
+			$('registroMensaje').textContent = `Cuenta de ${rol} creada. Ya puedes iniciar sesión.`;
+			$('registroForm').reset();
+		});
+		$('notaForm').addEventListener('submit', e => { e.preventDefault(); const u = usuarios.find(x => x.usuario === $('alumno').value); const aulaId = $('notaAula').value; const materia = $('materia').value.trim(); const aula = aulas.find(item => item.id === aulaId); const materiaAula = materias.some(item => item.aulaId === aulaId && normalizarTexto(item.nombre) === normalizarTexto(materia)); if (!u || !aulaId || !materia) return $('notaMensaje').textContent = 'Selecciona estudiante, aula y materia.'; if (!aula || !aula.estudiantes.includes(u.usuario)) return $('notaMensaje').textContent = 'El estudiante no pertenece al aula seleccionada.'; if (!materiaAula) return $('notaMensaje').textContent = 'La materia debe estar asignada al aula seleccionada.'; const tipo = $('notaTipo').value.trim(); const porcentaje = Number($('notaPorcentaje').value); const notaValor = Number($('nota').value); if (!tipo || !Number.isFinite(porcentaje) || porcentaje <= 0 || porcentaje > 100 || !Number.isFinite(notaValor) || notaValor < 1 || notaValor > 5) return $('notaMensaje').textContent = 'Completa el tipo, porcentaje y calificación correctamente.'; calificaciones.push({ usuario:u.usuario, nombre:u.nombre, materia, aulaId, tipo, porcentaje, nota:notaValor.toFixed(1), periodo:$('notaPeriodo')?.value || '1', institucion:institucionSesion() }); localStorage.setItem('calificaciones', JSON.stringify(calificaciones)); $('notaMensaje').textContent = 'Calificación guardada.'; $('materia').value = ''; $('notaTipo').value = ''; $('notaPorcentaje').value = ''; $('nota').value = ''; renderProfesor(); renderResumenAdmin(); });
+		$('exportarRespaldo')?.addEventListener('click', exportarRespaldoDatos);
+		$('importarRespaldo')?.addEventListener('change', event => importarRespaldoDatos(event.target.files[0]));
+
+		// El formulario de sesiones fue eliminado; no se registra ningún manejador inexistente.
+			$('anuncioForm').addEventListener('submit', e => { e.preventDefault(); const titulo = $('anuncioTitulo').value.trim(); const texto = $('anuncioTexto').value.trim(); const autor = usuarioSesion(); if (!titulo || !texto || !autor) return $('anuncioMensaje').textContent = 'Completa los campos del anuncio.'; const aulaId = $('anuncioAula').value; const aula = aulas.find(item => item.id === aulaId && item.profesor === autor.usuario && perteneceInstitucion(item)); if (!aulaId || !aula) return $('anuncioMensaje').textContent = 'Selecciona un aula válida.'; anuncios.push({ id: Date.now().toString(), titulo, texto, aulaId, aulaNombre:aula.nombre, autor:autor.nombre, rol:autor.rol, institucion:institucionSesion(), fecha:new Date().toLocaleDateString('es-ES'), timestamp:Date.now() }); localStorage.setItem('anuncios', JSON.stringify(anuncios)); $('anuncioForm').reset(); renderAnuncios('inicioAnunciosProfesor', 3); renderAnuncios('listaNotificacionesProfesor'); actualizarNotificaciones(); $('anuncioMensaje').textContent = 'Anuncio publicado.'; });
+			$('adminAnuncioForm').addEventListener('submit', e => { e.preventDefault(); const titulo = $('adminAnuncioTitulo').value.trim(); const texto = $('adminAnuncioTexto').value.trim(); const autor = usuarioSesion(); if (!titulo || !texto || !autor) return $('adminAnuncioMensaje').textContent = 'Completa los campos del anuncio.'; anuncios.push({ id: Date.now().toString(), titulo, texto, autor:autor.nombre, rol:autor.rol, institucion:institucionSesion(), fecha:new Date().toLocaleDateString('es-ES'), timestamp:Date.now() }); localStorage.setItem('anuncios', JSON.stringify(anuncios)); $('adminAnuncioForm').reset(); renderAnuncios('inicioAnunciosAdmin', 3); renderAnuncios('listaNotificacionesAdmin'); actualizarNotificaciones(); $('adminAnuncioMensaje').textContent = 'Anuncio publicado.'; });
+			$('profesorMateriaNombre').addEventListener('change', () => { $('profesorMateriaOtro').classList.toggle('hidden', $('profesorMateriaNombre').value !== 'Otro'); $('profesorMateriaOtro').required = $('profesorMateriaNombre').value === 'Otro'; });
+		$('materiaNombre').addEventListener('change', () => { $('materiaOtro').classList.toggle('hidden', $('materiaNombre').value !== 'Otro'); $('materiaOtro').required = $('materiaNombre').value === 'Otro'; });
+		$('profesorMateriaForm').addEventListener('submit', e => { e.preventDefault(); const nombreSeleccionado = $('profesorMateriaNombre').value; const nombre = (nombreSeleccionado === 'Otro' ? $('profesorMateriaOtro').value : nombreSeleccionado).trim(); const profesor = sessionStorage.getItem('usuario'); const aulaId = $('profesorMateriaAula').value; if (!nombre || !aulaId) return $('profesorMateriaMensaje').textContent = 'Escribe el nombre y selecciona un aula.'; if (materias.some(materia => normalizarTexto(materia.nombre) === normalizarTexto(nombre) && materia.aulaId === aulaId)) return $('profesorMateriaMensaje').textContent = 'Esa materia ya existe en esta aula.'; materias.push({ id: Date.now().toString(), nombre, profesor, aulaId, institucion:institucionSesion() }); guardarMaterias(); $('profesorMateriaForm').reset(); $('profesorMateriaMensaje').textContent = 'Materia creada correctamente.'; actualizarListasClases(); renderProfesor(); renderResumenAdmin(); });
+			$('profesorAulaForm').addEventListener('submit', e => { e.preventDefault(); const nombre = $('profesorAulaNombre').value.trim(); const horario = $('profesorAulaHorario').value.trim(); const profesor = sessionStorage.getItem('usuario'); if (!nombre || !horario) return $('profesorAulaMensaje').textContent = 'Completa el nombre y el horario.'; if (aulas.some(aula => normalizarTexto(aula.nombre) === normalizarTexto(nombre) && aula.institucion === institucionSesion())) return $('profesorAulaMensaje').textContent = 'Esa aula ya existe.'; aulas.push({ id: `aula-${Date.now()}`, nombre, horario, profesor, institucion:institucionSesion(), codigo: generarCodigoAula(), estudiantes:[] }); guardarAulas(); $('profesorAulaForm').reset(); $('profesorAulaMensaje').textContent = 'Aula creada. Código generado para compartir.'; actualizarListasClases(); renderResumenAdmin(); renderProfesor(); });
+			$('unirseAulaForm').addEventListener('submit', e => { e.preventDefault(); const usuario = sessionStorage.getItem('usuario'); const codigo = normalizarTexto($('codigoAula').value).replace(/\s+/g, '').toUpperCase(); const aula = aulas.find(item => item.codigo.replace(/\s+/g, '').toUpperCase() === codigo); if (!aula) return $('unirseAulaMensaje').textContent = 'El código no corresponde a ninguna aula.'; if (!perteneceInstitucion(aula)) return $('unirseAulaMensaje').textContent = 'Esa aula pertenece a otra institución.'; if (aula.estudiantes.includes(usuario)) return $('unirseAulaMensaje').textContent = 'Ya perteneces a esta aula.'; aula.estudiantes.push(usuario); guardarAulas(); $('unirseAulaForm').reset(); $('unirseAulaMensaje').textContent = `Te uniste a ${aula.nombre}.`; renderAulasEstudiante(usuarios.find(item => item.usuario === usuario)); });
+		$('profesorEstudianteForm').addEventListener('submit', e => { e.preventDefault(); const usuario = $('nuevoEstudianteUsuario').value.trim().toLowerCase(); const nombre = $('nuevoEstudianteNombre').value.trim(); const clave = $('nuevaClaveEstudianteProfesor').value; const institucion = $('nuevoEstudianteInstitucion').value; if (usuarios.some(u => u.usuario === usuario) || estudiantesEliminados.includes(usuario)) return $('profesorEstudianteMensaje').textContent = 'Ese usuario no está disponible.'; if (!institucion || institucion !== institucionSesion()) return $('profesorEstudianteMensaje').textContent = 'Solo puedes crear estudiantes en tu institución.'; const estudiante = { usuario, clave, nombre, rol:'estudiante', institucion }; usuarios.push(estudiante); const extras = JSON.parse(localStorage.getItem('estudiantesExtra') || '[]'); extras.push(estudiante); localStorage.setItem('estudiantesExtra', JSON.stringify(extras)); monedas[usuario] = {}; guardarEconomia(); $('profesorEstudianteMensaje').textContent = `${nombre} fue añadido al salón.`; $('profesorEstudianteForm').reset(); renderProfesor(); renderRanking(); renderRankingProfesor(); renderResumenAdmin(); });
+			$('tareaProfesorForm').addEventListener('submit', e => { e.preventDefault(); const aulaId = $('tareaAula').value; const titulo = $('tareaTitulo').value.trim(); const descripcion = $('tareaDescripcion').value.trim(); const fecha = $('tareaFecha').value; const aula = aulas.find(item => item.id === aulaId); const estudiantesAula = aula ? usuarios.filter(u => u.rol === 'estudiante' && aula.estudiantes.includes(u.usuario) && perteneceInstitucion(u)) : []; if (!aulaId || !titulo || !descripcion || !fecha) return $('tareaProfesorMensaje').textContent = 'Completa todos los datos de la tarea.'; if (!aula || (!esAdministrador() && aula.profesor !== sessionStorage.getItem('usuario'))) return $('tareaProfesorMensaje').textContent = 'No puedes asignar tareas en esta aula.'; if (!estudiantesAula.length) return $('tareaProfesorMensaje').textContent = 'El aula no tiene estudiantes inscritos.'; estudiantesAula.forEach(estudiante => crearTareaProfesor(estudiante.usuario, titulo, descripcion, fecha, aulaId)); $('tareaProfesorForm').reset(); $('tareaProfesorMensaje').textContent = `Tarea creada para ${estudiantesAula.length} estudiante(s) del aula ${aula.nombre}.`; renderTareasProfesor(); });
+			$('evidenciaForm').addEventListener('submit', e => { e.preventDefault(); const archivo = $('evidenciaArchivo').files[0]; const usuario = usuarios.find(item => item.usuario === sessionStorage.getItem('usuario')); const tarea = tareas.find(item => item.id === $('evidenciaTarea').value); if (!archivo || !usuario || !tarea) return $('evidenciaMensaje').textContent = 'Selecciona una tarea y un archivo.'; if (archivo.size > 2 * 1024 * 1024) return $('evidenciaMensaje').textContent = 'El archivo no puede superar 2 MB.'; const lector = new FileReader(); lector.onload = () => { evidencias.push({ id: `evidencia-${Date.now()}`, usuario: usuario.usuario, tareaId: tarea.id, titulo: tarea.titulo, archivoNombre: archivo.name, archivoData: lector.result, enlace: $('evidenciaEnlace').value.trim(), estado: 'pendiente', institucion:usuario.institucion }); guardarEvidencias(); $('evidenciaForm').reset(); $('evidenciaMensaje').textContent = 'Evidencia subida correctamente.'; renderEvidenciasEstudiante(usuario); }; lector.onerror = () => { $('evidenciaMensaje').textContent = 'No se pudo leer el archivo.'; }; lector.readAsDataURL(archivo); });
+			$('asistenciaForm').addEventListener('submit', e => { e.preventDefault(); const usuario = $('asistenciaEstudiante').value; const fecha = $('asistenciaFecha').value; const estado = $('asistenciaEstado').value; asistencia.push({ usuario, fecha, estado, periodo:$('asistenciaPeriodo')?.value || '1', institucion:institucionDeUsuario(usuario) }); guardarAsistencia(); $('asistenciaMensaje').textContent = 'Asistencia guardada.'; $('asistenciaForm').reset(); renderAsistenciaProfesor(); });
+		$('monedasForm').addEventListener('submit', e => { e.preventDefault(); const usuario = $('alumnoMonedas').value; const materia = $('materiaMonedas').value; const cantidad = Number($('cantidadMonedas').value); if (!usuario || !materia || !Number.isInteger(cantidad) || cantidad < 1) return $('monedasMensaje').textContent = 'Selecciona un estudiante, una materia y una cantidad válida.'; const estudiante = usuariosVisibles().find(item => item.usuario === usuario && item.rol === 'estudiante'); if (!estudiante) return $('monedasMensaje').textContent = 'Ese estudiante no pertenece a tu institución.'; monedas[usuario] = monedas[usuario] || {}; monedas[usuario][materia] = (monedas[usuario][materia] || 0) + cantidad; guardarEconomia(); $('monedasMensaje').textContent = `Se entregaron ${cantidad} ClassCoins a ${estudiante.nombre} en ${materia}.`; $('cantidadMonedas').value = ''; renderRankingProfesor(); });
+		$('productoForm').addEventListener('submit', e => { e.preventDefault(); const nombre = $('productoNombre').value.trim(); const descripcion = $('productoDescripcion').value.trim(); const precio = Number($('productoPrecio').value); if (!nombre || !descripcion || !Number.isInteger(precio) || precio < 1) return; productos.push({ id:`producto-${Date.now()}`, nombre, descripcion, precio, institucion:institucionSesion() }); guardarProductos(); renderProductosProfesor(); $('productoMensaje').textContent = 'Recompensa añadida al mercado.'; $('productoNombre').value = ''; $('productoDescripcion').value = ''; $('productoPrecio').value = ''; });
+        $('chismografoForm').addEventListener('submit', e => {
+            e.preventDefault();
+            const conQuien = $('chismografoConQuien').value;
+            const texto = $('chismografoTexto').value.trim();
+            const usuario = usuarioSesion();
+            const esAula = conQuien === '__aula__';
+            const destinatario = usuarios.find(item => item.usuario === conQuien);
+            const aula = aulas.find(item => perteneceInstitucion(item) && item.estudiantes.includes(usuario?.usuario));
+            if (!conQuien || !texto || !usuario || (!esAula && !destinatario)) return;
+            if (esAula && !aula) return;
+            if (!esAula && !aulasCompartidas(usuario.usuario, conQuien).length) return;
+            const publicaciones = JSON.parse(localStorage.getItem('chismografo') || '[]');
+            publicaciones.push({ id: Date.now(), tipo: esAula ? 'aula' : 'privado', aulaId: esAula ? aula.id : null, texto, autor: usuario.nombre || usuario.usuario, autorUsuario: usuario.usuario, destinatario: esAula ? 'todo el salón' : destinatario.nombre || destinatario.usuario, destinatarioUsuario: esAula ? null : conQuien, institucion: institucionSesion(), fecha: Date.now(), fechaTexto: new Date().toLocaleString('es-ES') });
+            localStorage.setItem('chismografo', JSON.stringify(publicaciones));
+            $('chismografoForm').reset();
+            $('chismografoMensaje').textContent = '¡Publicado en El Chismógrafo!';
+            renderChismografo();
+        });
+        
+		document.querySelectorAll('#estudiante .barra button').forEach(boton => boton.addEventListener('click', () => { mostrarPanel(boton.dataset.panel); if (boton.dataset.panel === 'rankingPanel') renderRanking(); }));
+		$('contrasenaForm').addEventListener('submit', e => { e.preventDefault(); const usuario = sessionStorage.getItem('usuario'); const nueva = $('nuevaContrasena').value; localStorage.setItem(`clave-${usuario}`, nueva); const user = usuarios.find(u => u.usuario === usuario); user.clave = nueva; $('contrasenaMensaje').textContent = 'Contraseña actualizada.'; $('nuevaContrasena').value = ''; });
+		$('perfilDatosEstudianteForm').addEventListener('submit', e => { e.preventDefault(); guardarDatosPerfil(usuarioSesion(), { tardes:'perfilTardesEstudiante', intereses:'perfilInteresesEstudiante', descripcion:'perfilDescripcionEstudiante' }, 'perfilDatosEstudianteMensaje'); });
+		$('perfilDatosProfesorForm').addEventListener('submit', e => { e.preventDefault(); guardarDatosPerfil(usuarioSesion(), { tardes:'perfilTardesProfesor', intereses:'perfilInteresesProfesor', descripcion:'perfilDescripcionProfesor' }, 'perfilDatosProfesorMensaje'); });
+		$('perfilDatosAdminForm').addEventListener('submit', e => { e.preventDefault(); guardarDatosPerfil(usuarioSesion(), { tardes:'perfilTardesAdmin', intereses:'perfilInteresesAdmin', descripcion:'perfilDescripcionAdmin' }, 'perfilDatosAdminMensaje'); });
+		$('fotoPerfilEstudianteForm').addEventListener('submit', e => { e.preventDefault(); const usuario = usuarioSesion(); guardarFotoPerfil(usuario, $('fotoPerfilEstudiante').files[0], 'fotoPerfilEstudianteMensaje'); });
+		$('fotoPerfilProfesorForm').addEventListener('submit', e => { e.preventDefault(); const usuario = usuarioSesion(); guardarFotoPerfil(usuario, $('fotoPerfilProfesor').files[0], 'fotoPerfilProfesorMensaje'); });
+		$('fotoPerfilAdminForm').addEventListener('submit', e => { e.preventDefault(); const usuario = usuarioSesion(); guardarFotoPerfil(usuario, $('fotoPerfilAdmin').files[0], 'fotoPerfilAdminMensaje'); });
+		document.querySelectorAll('#profesor .barra button').forEach(boton => boton.addEventListener('click', () => { mostrarPanelProfesor(boton.dataset.panel); if (boton.dataset.panel === 'profesorRanking') renderRankingProfesor(); }));
+		document.querySelectorAll('#administrador .barra button').forEach(boton => boton.addEventListener('click', () => mostrarPanelAdmin(boton.dataset.panel)));
+		document.querySelectorAll('.top-app-nav [data-top-panel], .top-user-actions [data-top-panel]').forEach(boton => boton.addEventListener('click', (evento) => { evento.preventDefault(); evento.stopPropagation();
+			const usuario = usuarios.find(item => item.usuario === sessionStorage.getItem('usuario'));
+			if (!usuario) return;
+			let panel = boton.dataset.topPanel;
+			if (panel === 'notificacionesPanel') panel = usuario.rol === 'profesor' ? 'profesorNotificaciones' : esRolAdministrativo(usuario.rol) ? 'adminNotificaciones' : 'notificacionesPanel';
+			if (esRolAdministrativo(usuario.rol)) { mostrarPanelAdmin(panel); if (panel === 'adminPerfil') { renderAvatarPerfil('perfilAvatarAdmin', usuario); cargarDatosPerfil(usuario, { tardes:'perfilTardesAdmin', intereses:'perfilInteresesAdmin', descripcion:'perfilDescripcionAdmin' }); } }
+			else if (usuario.rol === 'profesor') { mostrarPanelProfesor(panel); if (panel === 'profesorRanking') renderRankingProfesor(); }
+			else { mostrarPanel(panel); if (panel === 'rankingPanel') renderRanking(); if (panel === 'chismografoPanel') renderChismografo(); }
+			actualizarNavegacionSuperior(panel);
+		}));
+		$('profesorForm').addEventListener('submit', e => { e.preventDefault(); const usuario = $('nuevoProfesorUsuario').value.trim().toLowerCase(); const nombre = $('nuevoProfesorNombre').value.trim(); const clave = $('nuevaClaveProfesor').value; if (usuarios.some(u => u.usuario === usuario)) return $('profesorMensaje').textContent = 'Ese usuario ya existe.'; const profesor = { usuario, clave, nombre, rol:'profesor', institucion:institucionSesion() }; usuarios.push(profesor); const profesores = JSON.parse(localStorage.getItem('profesoresExtra') || '[]'); profesores.push(profesor); localStorage.setItem('profesoresExtra', JSON.stringify(profesores)); $('profesorMensaje').textContent = `${nombre} fue añadido como profesor.`; $('profesorForm').reset(); });
+		$('adminPerfilForm').addEventListener('submit', e => { e.preventDefault(); const admin = usuarioSesion(); const usuario = $('adminUsuario').value.trim().toLowerCase(); const nombre = $('adminNombre').value.trim(); const clave = $('adminClave').value; if (usuarios.some(u => u !== admin && u.usuario === usuario)) return $('adminPerfilMensaje').textContent = 'Ese usuario ya existe.'; admin.usuario = usuario; admin.nombre = nombre; admin.clave = clave; localStorage.setItem('perfilAdministrador', JSON.stringify({ usuario, nombre, clave, rol:admin.rol, institucion:admin.institucion })); sessionStorage.setItem('usuario', usuario); $('adminPerfilMensaje').textContent = 'Perfil actualizado correctamente.'; $('adminClave').value = ''; });
+		$('estudianteForm').addEventListener('submit', e => { e.preventDefault(); const usuario = $('nuevoUsuario').value.trim().toLowerCase(); const nombre = $('nuevoNombre').value.trim(); const clave = $('nuevaClave').value; const institucion = $('nuevoUsuarioInstitucion').value; if (usuarios.some(u => u.usuario === usuario)) return $('estudianteMensaje').textContent = 'Ese usuario ya existe.'; if (!institucion || (!esCreadorOriginal() && institucion !== institucionSesion())) return $('estudianteMensaje').textContent = 'Solo puedes crear estudiantes en tu institución.'; const estudiante = { usuario, clave, nombre, rol:'estudiante', institucion }; usuarios.push(estudiante); const extras = JSON.parse(localStorage.getItem('estudiantesExtra') || '[]'); extras.push(estudiante); localStorage.setItem('estudiantesExtra', JSON.stringify(extras)); monedas[usuario] = {}; guardarEconomia(); renderPersonasAdmin(); renderResumenAdmin(); $('estudianteMensaje').textContent = `${nombre} fue añadido al salón.`; $('estudianteForm').reset(); });
+		$('materiaForm').addEventListener('submit', e => { e.preventDefault(); const nombreSeleccionado = $('materiaNombre').value; const nombre = (nombreSeleccionado === 'Otro' ? $('materiaOtro').value : nombreSeleccionado).trim(); const profesor = $('materiaProfesor').value; const aulaId = $('materiaAula').value; if (!nombre || !profesor || !aulaId) return $('materiaMensaje').textContent = 'Completa todos los datos.'; if (materias.some(materia => normalizarTexto(materia.nombre) === normalizarTexto(nombre) && materia.aulaId === aulaId)) return $('materiaMensaje').textContent = 'Esa materia ya existe en esta aula.'; materias.push({ id: Date.now().toString(), nombre, profesor, aulaId, institucion:institucionSesion() }); guardarMaterias(); actualizarListasClases(); renderResumenAdmin(); renderProfesor(); $('materiaForm').reset(); $('materiaMensaje').textContent = 'Materia creada correctamente.'; });
+		$('aulaForm').addEventListener('submit', e => { e.preventDefault(); const nombre = $('aulaNombre').value.trim(); const horario = $('aulaHorario').value.trim(); const profesor = $('aulaProfesor').value; if (!nombre || !horario || !profesor) return $('aulaMensaje').textContent = 'Completa todos los campos.'; if (aulas.some(aula => normalizarTexto(aula.nombre) === normalizarTexto(nombre) && aula.institucion === institucionSesion())) return $('aulaMensaje').textContent = 'Esa aula ya existe.'; aulas.push({ id: `aula-${Date.now()}`, nombre, horario, profesor, institucion:institucionSesion(), codigo: generarCodigoAula(), estudiantes:[] }); guardarAulas(); actualizarListasClases(); renderResumenAdmin(); renderAdministrador(); $('aulaForm').reset(); $('aulaMensaje').textContent = 'Aula guardada. Código generado para el profesor.'; });
+		$('contrasenaProfesorForm').addEventListener('submit', e => { e.preventDefault(); const usuario = sessionStorage.getItem('usuario'); const nueva = $('nuevaContrasenaProfesor').value; localStorage.setItem(`clave-${usuario}`, nueva); usuarios.find(u => u.usuario === usuario).clave = nueva; $('contrasenaProfesorMensaje').textContent = 'Contraseña actualizada.'; $('nuevaContrasenaProfesor').value = ''; });
+		document.querySelectorAll('.comprar').forEach(boton => boton.addEventListener('click', () => { const usuario = sessionStorage.getItem('usuario'); const precio = Number(boton.dataset.precio); if ((monedas[usuario] || 0) < precio) return $('tiendaMensaje').textContent = 'Necesitas más ClassCoins.'; monedas[usuario] -= precio; compras[usuario] = compras[usuario] || {}; compras[usuario][boton.dataset.item] = (compras[usuario][boton.dataset.item] || 0) + 1; guardarEconomia(); $('tiendaMensaje').textContent = '¡Compra realizada!'; renderTienda({ usuario }); }));
+		document.querySelectorAll('.salir').forEach(b => b.onclick = () => { sessionStorage.removeItem('usuario'); mostrar('login'); });
+			renderAulasAdmin();
+		inicializarVista();
+	</script>
+</body>
+</html>

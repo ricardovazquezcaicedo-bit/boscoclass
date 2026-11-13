@@ -1,0 +1,12 @@
+{
+"name": "boscoia",
+"version": "1.0.1",
+"private": true,
+"description": "Asistente educativo BoscoIA con Google Gemini",
+"scripts": {
+"start": "node server.js"
+},
+"engines": {
+"node": ">=20"
+}
+}

@@ -1,0 +1,6 @@
+{
+  "name": "BoscoIA - Colegio San Juan Bosco",
+  "description": "Tutor y asistente de aprendizaje inteligente del Colegio San Juan Bosco (Salesianos de Don Bosco - Tuluá).",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
